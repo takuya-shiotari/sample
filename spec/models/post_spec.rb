@@ -26,4 +26,11 @@ RSpec.describe Post do
       expect(post.title_short).to eq 'aaaaaaa...'
     end
   end
+
+  describe '#title_with_default' do
+    it 'returns truncated title' do
+      post = Post.new(title: '', body: 'body')
+      expect(post.title_with_default).to eq 'No title'
+    end
+  end
 end
