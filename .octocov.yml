@@ -1,0 +1,22 @@
+coverage:
+  paths:
+    - coverage/.resultset.json
+  acceptable: 60%
+codeToTestRatio:
+  code:
+    - 'app/**/*.rb'
+    - 'lib/**/*.rb'
+  test:
+    - 'spec/**/*_spec.rb'
+testExecutionTime:
+  if: true
+diff:
+  datastores:
+    - artifact://${GITHUB_REPOSITORY}
+comment:
+  if: is_pull_request
+  hideFooterLink: false
+report:
+  if: is_default_branch
+  datastores:
+    - artifact://${GITHUB_REPOSITORY}

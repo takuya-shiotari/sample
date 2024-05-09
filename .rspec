@@ -1,0 +1,5 @@
+--require spec_helper
+--profile 10
+--format RspecJunitFormatter
+--out test_results/rspec.xml
+--failure-exit-code=0

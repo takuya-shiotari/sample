@@ -1,0 +1,34 @@
+name: octocov
+
+on:
+  pull_request:
+    types: opened
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        required: true
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.release_tag || github.event.pull_request.head.sha }}
+      - name: Download artifact
+        id: download_artifact
+        run: |
+          gh release download ${{ github.event.inputs.release_tag || github.event.pull_request.head.sha }} &&
+            tar xzf github_pages_artifact.tgz &&
+            mv github_pages_artifact/coverage . ||
+            echo "skip_octocov=true" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Coverage Report by octocov
+        uses: k1LoW/octocov-action@v1
+        if: ${{ steps.download_artifact.outputs.skip_octocov != 'true' }}
+        env:
+          OCTOCOV_GITHUB_REF: ${{ github.ref }}
+          OCTOCOV_GITHUB_SHA: ${{ github.event.inputs.release_tag || github.event.pull_request.head.sha }}
