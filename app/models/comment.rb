@@ -5,6 +5,12 @@ class Comment
 
   attr_reader :body
 
+  # @param [Comment] other
+  # @return [Boolean]
+  def ==(other)
+    other.body == body
+  end
+
   def to_s
     @body
   end

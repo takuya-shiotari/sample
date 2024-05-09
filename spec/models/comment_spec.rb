@@ -12,4 +12,11 @@ RSpec.describe Comment do
       expect(comment.to_s).to eq 'body'
     end
   end
+
+  describe '#==' do
+    it 'checks comment equality' do
+      comment = Comment.new('body')
+      expect(comment).to eq Comment.new('body')
+    end
+  end
 end
