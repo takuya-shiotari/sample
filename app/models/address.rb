@@ -1,13 +1,13 @@
 class Address
-  def initialize(name)
-    @name = name
+  def initialize(pref:)
+    @pref = pref
   end
 
-  def name
-    @name.presence
+  def pref
+    @pref.presence
   end
 
   def to_s
-    @name
+    @pref
   end
 end
