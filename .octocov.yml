@@ -16,6 +16,7 @@ diff:
 comment:
   if: is_pull_request
   hideFooterLink: false
+  deletePrevious: true
 report:
   if: is_default_branch
   datastores:
