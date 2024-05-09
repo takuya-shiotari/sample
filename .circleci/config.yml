@@ -152,5 +152,4 @@ workflows:
           filters:
             branches:
               ignore:
-                - main
                 - release
