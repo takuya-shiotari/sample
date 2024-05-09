@@ -16,7 +16,7 @@ RSpec.describe Post do
   describe '#title_short' do
     it 'returns truncated title' do
       post = Post.new(title: 'a' * 20, body: 'body')
-      expect(post.title_short).to be 'a' * 10
+      expect(post.title_short).to eq 'aaaaaaa...'
     end
   end
 end
