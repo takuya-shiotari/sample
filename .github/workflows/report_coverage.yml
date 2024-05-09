@@ -16,11 +16,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Download artifact
-        id: download_artifact
+      - name: Download github_pages_artifact
+        id: download_github_pages_artifact
         run: |
-          echo $GITHUB_REF
-          echo $GITHUB_REF_NAME
           gh release download ${{ github.event.inputs.release_tag || github.event.pull_request.head.sha }} &&
             tar xzf github_pages_artifact.tgz &&
             mv github_pages_artifact/coverage . ||
@@ -29,4 +27,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Coverage Report by octocov
         uses: k1LoW/octocov-action@v1
-        if: ${{ steps.download_artifact.outputs.skip_octocov != 'true' }}
+        if: ${{ steps.download_github_pages_artifact.outputs.skip_octocov != 'true' }}
