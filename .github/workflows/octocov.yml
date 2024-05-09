@@ -31,3 +31,6 @@ jobs:
       - name: Coverage Report by octocov
         uses: k1LoW/octocov-action@v1
         if: ${{ steps.download_artifact.outputs.skip_octocov != 'true' }}
+      - name: ls
+        run: |
+          ls -lah
