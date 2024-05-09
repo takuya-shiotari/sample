@@ -5,6 +5,10 @@ class Comment
 
   attr_reader :body
 
+  def ==(other)
+    other.body == body
+  end
+
   def to_s
     @body
   end
