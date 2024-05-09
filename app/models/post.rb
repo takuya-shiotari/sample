@@ -13,4 +13,12 @@ class Post < ApplicationRecord
   def title_short
     title&.truncate(10)
   end
+
+  def title_with_body
+    "#{title} - #{body}"
+  end
+
+  def title_with_default
+    title.presence || 'No title'
+  end
 end
