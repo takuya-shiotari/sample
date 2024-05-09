@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 RSpec.describe Comment do
   describe '#body' do
     it 'returns body value' do
