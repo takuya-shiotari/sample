@@ -16,7 +16,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.inputs.release_tag || github.event.pull_request.head.sha }}
       - name: Download artifact
         id: download_artifact
         run: |
