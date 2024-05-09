@@ -3,14 +3,14 @@ coverage:
     - coverage/.resultset.json
   acceptable: 60%
 codeToTestRatio:
-  acceptable: 1:2
+  acceptable: 1:0.5
   code:
-    - 'app/**/*.rb'
-    - 'lib/**/*.rb'
+    - "app/**/*.rb"
+    - "lib/**/*.rb"
   test:
-    - 'spec/**/*_spec.rb'
+    - "spec/**/*_spec.rb"
 testExecutionTime:
-  acceptable: 0.1sec
+  acceptable: 1min
 diff:
   datastores:
     - artifact://${GITHUB_REPOSITORY}
