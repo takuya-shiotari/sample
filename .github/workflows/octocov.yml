@@ -21,6 +21,7 @@ jobs:
         id: download_artifact
         run: |
           echo $GITHUB_REF
+          echo $GITHUB_REF_NAME
           gh release download ${{ github.event.inputs.release_tag || github.event.pull_request.head.sha }} &&
             tar xzf github_pages_artifact.tgz &&
             mv github_pages_artifact/coverage . ||
