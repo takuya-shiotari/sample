@@ -108,7 +108,7 @@ jobs:
       - checkout
       - gh/install
       - run:
-          name: Dispatch deploy_github_pages
+          name: Run deploy_github_pages
           command: |
             gh workflow run deploy_github_pages.yml --ref ${CIRCLE_BRANCH} -f "release_tag=${CIRCLE_SHA1}"
 
@@ -119,7 +119,7 @@ jobs:
       - checkout
       - gh/install
       - run:
-          name: Dispatch deploy_github_pages
+          name: Run report_coverage
           command: |
             gh workflow run report_coverage.yml --ref ${CIRCLE_BRANCH} -f "release_tag=${CIRCLE_SHA1}"
 
