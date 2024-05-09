@@ -12,6 +12,8 @@ jobs:
   report:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    environment:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Update status pending
         run: |
@@ -31,8 +33,6 @@ jobs:
             tar xzf github_pages_artifact.tgz &&
             mv github_pages_artifact/coverage . ||
             echo "skip_octocov=true" >> $GITHUB_OUTPUT
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Coverage Report by octocov
         uses: k1LoW/octocov-action@v1
         if: ${{ steps.download_github_pages_artifact.outputs.skip_octocov != 'true' }}
