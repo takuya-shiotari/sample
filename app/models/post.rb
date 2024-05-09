@@ -9,4 +9,8 @@ class Post < ApplicationRecord
   def body_length
     body&.length
   end
+
+  def title_short
+    title&.truncate(10)
+  end
 end
