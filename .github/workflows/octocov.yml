@@ -29,3 +29,5 @@ jobs:
       - name: Coverage Report by octocov
         uses: k1LoW/octocov-action@v1
         if: ${{ steps.download_artifact.outputs.skip_octocov != 'true' }}
+        env:
+          OCTOCOV_GITHUB_REF: refs/heads/main
