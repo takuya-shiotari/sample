@@ -27,7 +27,7 @@ jobs:
       - image: cimg/ruby:3.1.2-browsers
         entrypoint: /bin/sh
         user: root
-    working_directory: ~/blog
+    working_directory: ~/sample
     steps:
       - checkout
       - *restore_bundler_cache
@@ -68,7 +68,7 @@ jobs:
         entrypoint: /bin/sh
         user: root
     resource_class: medium+
-    working_directory: ~/blog
+    working_directory: ~/sample
     steps:
       - checkout
       - gh/install
