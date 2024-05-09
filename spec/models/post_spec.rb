@@ -13,6 +13,13 @@ RSpec.describe Post do
     end
   end
 
+  describe '#body_length' do
+    it 'returns the length of the body' do
+      post = Post.new(title: 'title', body: 'body')
+      expect(post.body_length).to be 4
+    end
+  end
+
   describe '#title_short' do
     it 'returns truncated title' do
       post = Post.new(title: 'a' * 20, body: 'body')
