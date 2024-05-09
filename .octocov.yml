@@ -10,9 +10,6 @@ codeToTestRatio:
     - 'spec/**/*_spec.rb'
 testExecutionTime:
   if: true
-diff:
-  datastores:
-    - artifact://${GITHUB_REPOSITORY}
 comment:
   if: is_pull_request
   hideFooterLink: false
