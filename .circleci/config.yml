@@ -62,7 +62,7 @@ jobs:
           root: /tmp/coverage
           paths:
             - .resultset-*.json
-  build_githu_pages_artifact:
+  build_github_pages_artifact:
     docker:
       - image: cimg/ruby:3.1.2-browsers
         entrypoint: /bin/sh
@@ -112,7 +112,7 @@ jobs:
           command: |
             gh workflow run deploy_github_pages.yml --ref ${CIRCLE_BRANCH} -f "release_tag=${CIRCLE_SHA1}"
 
-  run_octocov:
+  run_report_coverage:
     docker:
       - image: cimg/base:stable
     steps:
@@ -121,7 +121,7 @@ jobs:
       - run:
           name: Dispatch deploy_github_pages
           command: |
-            gh workflow run octocov.yml --ref ${CIRCLE_BRANCH} -f "release_tag=${CIRCLE_SHA1}"
+            gh workflow run report_coverage.yml --ref ${CIRCLE_BRANCH} -f "release_tag=${CIRCLE_SHA1}"
 
 workflows:
   version: 2
@@ -132,7 +132,7 @@ workflows:
             branches:
               ignore:
                 - release
-      - build_githu_pages_artifact:
+      - build_github_pages_artifact:
           requires:
             - test
           filters:
@@ -141,14 +141,14 @@ workflows:
                 - release
       - run_deploy_github_pages:
           requires:
-            - build_githu_pages_artifact
+            - build_github_pages_artifact
           filters:
             branches:
               only:
                 - main
-      - run_octocov:
+      - run_report_coverage:
           requires:
-            - build_githu_pages_artifact
+            - build_github_pages_artifact
           filters:
             branches:
               ignore:
