@@ -15,7 +15,7 @@ diff:
   datastores:
     - artifact://${GITHUB_REPOSITORY}
 comment:
-  if: is_pull_request
+  if: is_pull_request && !is_default_branch
   hideFooterLink: false
   deletePrevious: true
 report:
