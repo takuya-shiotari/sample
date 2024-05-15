@@ -2,16 +2,13 @@ require 'datadog/statsd'
 require 'ddtrace'
 
 
-=begin
 Datadog::Tracing.before_flush do |trace|
   trace.spans.each do |span|
-    if span.resource == 'SELECT "posts".* FROM "posts"'
-      span.resource = span.resource.gsub('posts', 'tests')
-    end
+    match_data = span&.resource&.match(/\AEXEC sp_executesql N'(.*?)', N'(.*?)/)
+    span.resource = match_data[1] if match_data
   end
   trace
 end
-=end
 
 Datadog.configure do |c|
   c.tracing.enabled = true
