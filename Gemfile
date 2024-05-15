@@ -28,6 +28,9 @@ gem 'bootsnap', '>= 1.4.2', require: false
 
 gem 'psych', '~> 3.1'
 
+gem 'ddtrace', '1.4.0'
+gem 'dogstatsd-ruby', '5.5.0'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
