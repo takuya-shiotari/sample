@@ -10,6 +10,9 @@ Datadog::Tracing.before_flush do |trace|
   trace
 end
 
+ENV['DD_TRACE_SAMPLE_RATE'] = '1.0'
+ENV['DD_TRACE_RATE_LIMIT'] = '1000'
+
 Datadog.configure do |c|
   c.tracing.enabled = true
   c.runtime_metrics.enabled = true
@@ -19,7 +22,6 @@ Datadog.configure do |c|
   c.tracing.instrument :rack, quantize: { query: { show: :all } }
   c.profiling.enabled = true
   c.service = "sample-#{Rails.env}"
-
 =begin
   c.tracing.sampler = Datadog::Tracing::Sampling::PrioritySampler.new(
     post_sampler: Datadog::Tracing::Sampling::RuleSampler.new(
