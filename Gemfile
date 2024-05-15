@@ -30,6 +30,7 @@ gem 'psych', '~> 3.1'
 
 gem 'ddtrace', '1.4.0'
 gem 'dogstatsd-ruby', '5.5.0'
+gem 'activerecord-sqlserver-adapter'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

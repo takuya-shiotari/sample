@@ -45,6 +45,9 @@ GEM
     activerecord (6.0.6.1)
       activemodel (= 6.0.6.1)
       activesupport (= 6.0.6.1)
+    activerecord-sqlserver-adapter (6.0.3)
+      activerecord (~> 6.0.0)
+      tiny_tds
     activestorage (6.0.6.1)
       actionpack (= 6.0.6.1)
       activejob (= 6.0.6.1)
@@ -262,6 +265,7 @@ GEM
     thread_safe (0.3.6)
     tilt (2.3.0)
     timeout (0.4.1)
+    tiny_tds (2.1.7)
     turbolinks (5.2.1)
       turbolinks-source (~> 5.2)
     turbolinks-source (5.2.0)
@@ -294,6 +298,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  activerecord-sqlserver-adapter
   bootsnap (>= 1.4.2)
   byebug
   capybara (>= 2.15)
