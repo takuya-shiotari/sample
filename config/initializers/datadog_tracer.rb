@@ -20,6 +20,7 @@ Datadog.configure do |c|
   c.env = Rails.env
   c.tracing.instrument :rails, service_name: "sample-#{Rails.env}"
   c.tracing.instrument :rack, quantize: { query: { show: :all } }
+  c.tracing.instrument :redis
   c.profiling.enabled = true
   c.service = "sample-#{Rails.env}"
 =begin

@@ -56,8 +56,7 @@ Rails.application.configure do
   # Use a different cache store in production.
   config.cache_store = :redis_cache_store, {
     url: ENV['REDIS_URL'],
-    expires_in: 1.hour,
-    driver: :hiredis
+    expires_in: 1.hour
   }
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
