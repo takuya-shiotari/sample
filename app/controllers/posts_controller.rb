@@ -60,7 +60,10 @@ class PostsController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_post
-    @post = Post.find(params[:id])
+    @post =
+      Rails.cache.fetch("posts/#{params[:id]}") do
+        Post.find(params[:id])
+      end
   end
 
   # Only allow a list of trusted parameters through.
