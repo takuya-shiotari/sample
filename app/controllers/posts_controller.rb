@@ -3,8 +3,17 @@ class PostsController < ApplicationController
 
   # GET /posts or /posts.json
   def index
-    @posts = Post.search(params[:query] || {}).records.to_a
-    @products = fetch_products
+    # span_id = Datadog.current_span_id
+    context = Datadog::Tracing.send(:tracer).provider.context
+    Parallel.map(['es', 'api'], in_threads: 2) do |type|
+      Datadog::Tracing.send(:tracer).provider.context = context
+      case type
+      when 'es'
+        @posts = Post.search(params[:query] || {}).records.to_a
+      when 'api'
+        @products = fetch_products
+      end
+    end
   end
 
   # GET /posts/1 or /posts/1.json

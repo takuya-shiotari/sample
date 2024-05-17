@@ -41,6 +41,8 @@ gem 'google-protobuf', '3.19.4'
 gem 'dogstatsd-ruby', '5.5.0'
 gem 'activerecord-sqlserver-adapter'
 
+gem 'parallel'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
