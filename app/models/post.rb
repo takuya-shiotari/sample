@@ -1,4 +1,6 @@
 class Post < ApplicationRecord
+  include Elasticsearch::Model
+
   validates :title, presence: true
   validates :body, presence: true
 

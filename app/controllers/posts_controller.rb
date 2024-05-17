@@ -3,7 +3,8 @@ class PostsController < ApplicationController
 
   # GET /posts or /posts.json
   def index
-    @posts = Post.all
+    @posts = Post.search(params[:query] || {}).records.to_a
+    @products = fetch_products
   end
 
   # GET /posts/1 or /posts/1.json
@@ -65,5 +66,13 @@ class PostsController < ApplicationController
   # Only allow a list of trusted parameters through.
   def post_params
     params.require(:post).permit(:title, :body)
+  end
+
+  def fetch_products
+    connection = Faraday.new(url: 'https://dummyjson.com') do |faraday|
+      faraday.response :json
+    end
+    response = connection.get '/products/1'
+    response.body
   end
 end

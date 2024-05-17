@@ -4,7 +4,7 @@ require 'ddtrace'
 
 Datadog::Tracing.before_flush do |trace|
   trace.spans.each do |span|
-    match_data = span&.resource&.match(/\AEXEC sp_executesql N'(.*?)', N'(.*?)/)
+    match_data = span&.resource&.match(/\AEXEC\s+sp_executesql\s+N'(.*?)'(,\s+N'([^']+)',\s*(.+))?\z/)
     span.resource = match_data[1] if match_data
   end
   trace
@@ -21,6 +21,9 @@ Datadog.configure do |c|
   c.tracing.instrument :rails, service_name: "sample-#{Rails.env}"
   c.tracing.instrument :rack, quantize: { query: { show: :all } }
   c.tracing.instrument :redis
+  #c.tracing.instrument :elasticsearch, quantize: { query: { show: :all } }
+  c.tracing.instrument :elasticsearch
+  c.tracing.instrument :faraday
   c.profiling.enabled = true
   c.service = "sample-#{Rails.env}"
 =begin
