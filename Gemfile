@@ -29,6 +29,8 @@ gem 'elasticsearch', '7.13.3'
 gem 'elasticsearch-model', '7.2.1'
 gem 'elasticsearch-dsl', '0.1.10'
 
+gem 'lograge'
+
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.2', require: false
 
