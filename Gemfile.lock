@@ -131,6 +131,7 @@ GEM
     ffi (1.16.3)
     globalid (1.1.0)
       activesupport (>= 5.0)
+    google-protobuf (3.19.4)
     hashie (5.0.0)
     i18n (1.14.4)
       concurrent-ruby (~> 1.0)
@@ -361,6 +362,7 @@ DEPENDENCIES
   elasticsearch (= 7.13.3)
   elasticsearch-dsl (= 0.1.10)
   elasticsearch-model (= 7.2.1)
+  google-protobuf (= 3.19.4)
   jbuilder (~> 2.7)
   listen (~> 3.2)
   lograge
