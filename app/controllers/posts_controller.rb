@@ -4,14 +4,17 @@ class PostsController < ApplicationController
   # GET /posts or /posts.json
   def index
     # span_id = Datadog.current_span_id
-    context = Datadog::Tracing.send(:tracer).provider.context
+    # context = Datadog::Tracing.send(:tracer).provider.context
+    # https://github.com/DataDog/dd-trace-rb/blob/master/docs/UpgradeGuide.md
+    trace_digest = Datadog::Tracing.active_trace.to_digest
     Parallel.map(['es', 'api'], in_threads: 2) do |type|
-      Datadog::Tracing.send(:tracer).provider.context = context
-      case type
-      when 'es'
-        @posts = Post.search(params[:query] || {}).records.to_a
-      when 'api'
-        @products = fetch_products
+      Datadog::Tracing.trace('parallel', continue_from: trace_digest) do |span, trace|
+        case type
+        when 'es'
+          @posts = Post.search(params[:query] || {}).records.to_a
+        when 'api'
+          @products = fetch_products
+        end
       end
     end
   end
