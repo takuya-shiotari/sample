@@ -7,13 +7,17 @@ class PostsController < ApplicationController
     # context = Datadog::Tracing.send(:tracer).provider.context
     # https://github.com/DataDog/dd-trace-rb/blob/master/docs/UpgradeGuide.md
     trace_digest = Datadog::Tracing.active_trace.to_digest
-    Parallel.map(['es', 'api'], in_threads: 2) do |type|
+    Parallel.map(['es', 'api', 'sleep'], in_threads: 2) do |type|
+      # Datadog::Tracing.continue_trace!(trace_digest)
       Datadog::Tracing.trace('parallel', continue_from: trace_digest) do |span, trace|
         case type
         when 'es'
           @posts = Post.search(params[:query] || {}).records.to_a
         when 'api'
           @products = fetch_products
+        when 'sleep'
+          sleep 0.1
+          Post.first
         end
       end
     end
