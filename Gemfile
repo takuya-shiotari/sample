@@ -23,7 +23,7 @@ gem 'jbuilder', '~> 2.7'
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 
-gem 'dotenv'
+gem 'dotenv', require: 'dotenv/load'
 gem 'redis'
 gem 'elasticsearch', '7.13.3'
 gem 'elasticsearch-model', '7.2.1'

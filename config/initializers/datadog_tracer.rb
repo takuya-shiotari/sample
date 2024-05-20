@@ -33,6 +33,7 @@ Datadog.configure do |c|
   #c.tracing.instrument :elasticsearch, quantize: { query: { show: :all } }
   c.tracing.instrument :elasticsearch
   c.tracing.instrument :faraday
+  c.tracing.instrument :aws
   c.profiling.enabled = true
   c.service = "sample-#{Rails.env}"
 =begin
