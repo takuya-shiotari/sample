@@ -1,13 +1,87 @@
 version: 2.1
-
 orbs:
-  gh: circleci/github-cli@2.0
-
+  aws-cli: circleci/aws-cli@4.1.3
+  aws-ecr: circleci/aws-ecr@9.0.3
+  browser-tools: circleci/browser-tools@1.2.3
 references:
+  elasticsearch: &elasticsearch
+    image: 000000000000.dkr.ecr.ap-northeast-1.amazonaws.com/sample/elasticsearch:latest
+    aws_auth:
+      aws_access_key_id: ${AWS_ACCESS_KEY_ID}
+      aws_secret_access_key: ${AWS_SECRET_ACCESS_KEY}
+  sample_image: &sample_image
+    docker:
+      - image: cimg/ruby:3.1.2-browsers
+        entrypoint: /bin/sh
+        user: root
+        environment:
+          DB_PASSWORD: "password"
+      - image: mcr.microsoft.com/mssql/server:2017-latest
+        environment:
+          ACCEPT_EULA: "Y"
+          SA_PASSWORD: "password"
+      - image: circleci/dynamodb
+      - name: elasticsearch-node1
+        environment:
+          - cluster.name=elasticsearch-cluster
+          - node.name=elasticsearch-node1
+          - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
+        <<: *elasticsearch
+      - name: elasticsearch-node2
+        environment:
+          - cluster.name=elasticsearch-cluster
+          - node.name=elasticsearch-node2
+          - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
+        <<: *elasticsearch
+      - name: elasticsearch-node3
+        environment:
+          - cluster.name=elasticsearch-cluster
+          - node.name=elasticsearch-node3
+          - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
+        <<: *elasticsearch
   restore_bundler_cache: &restore_bundler_cache
     restore_cache:
       name: Restore bundler cache
       key: gems-{{ checksum "Gemfile.lock" }}-{{ .Environment.COMMON_CACHE_KEY }}
+  restore_freetds_cache: &restore_freetds_cache
+    restore_cache:
+      name: Restore FreeTDS Cache
+      keys:
+        - 'freetds-1.3.17'
+  install_freetds: &install_freetds
+    run:
+      name: make install freetds for bundle install
+      command: |
+        if [ ! -d "freetds-1.3.17" ]; then
+          apt-get update --allow-releaseinfo-change
+          apt-get -y install libsasl2-dev
+          wget http://www.freetds.org/files/stable/freetds-1.3.17.tar.gz
+          tar -xzf freetds-1.3.17.tar.gz
+          cd freetds-1.3.17
+          ./configure --with-tdsver=7.4
+          make
+          cd ..
+        fi
+        cd freetds-1.3.17
+        make install
+  save_freetds_cache: &save_freetds_cache
+    save_cache:
+      name: Save FreeTDS Cache
+      paths:
+        - ./freetds-1.3.17
+      key: 'freetds-1.3.17'
+  install_mecab: &install_mecab
+    run:
+      name: apt-get mecab
+      command: |
+        apt-get update --allow-releaseinfo-change
+        apt-get install -y mecab libmecab-dev mecab-ipadic mecab-ipadic-utf8
   bundle_install: &bundle_install
     run:
       name: Bundle Install
@@ -20,30 +94,116 @@ references:
       key: gems-{{ checksum "Gemfile.lock" }}-{{ .Environment.COMMON_CACHE_KEY }}
       paths:
         - vendor/bundle
+  update_mecabrc: &update_mecabrc
+    run:
+      name: rake mecab:update_mecabrc
+      command: RAILS_ENV=test bundle exec rake mecab:update_mecabrc
+  restore_npm_cache: &restore_npm_cache
+    restore_cache:
+      name: Restore npm cache
+      key: npm-cache-{{ checksum "package-lock.json" }}-{{ .Environment.COMMON_CACHE_KEY }}
+  npm_install: &npm_install
+    run:
+      name: npm install
+      command: npm install
+  save_npm_cache: &save_npm_cache
+    save_cache:
+      name: Save npm cache
+      key: npm-cache-{{ checksum "package-lock.json" }}-{{ .Environment.COMMON_CACHE_KEY }}
+      paths:
+        - node_modules
+
+  add_ssh_keys: &add_ssh_keys
+    add_ssh_keys:
+      fingerprints:
+        - "eb:e7:80:46:5a:67:7e:3a:69:d9:af:36:62:04:d9:7e"
+
+  # add_ssh_keysを事前に処理しておく必要がある
+  git_submodule_update: &git_submodule_update
+    run:
+      name: 'git submodule update'
+      command: |
+        git submodule sync
+        git submodule update --init --recursive
+
+  build-and-push-elasticsearch-image-staging: &build-and-push-elasticsearch-image-staging
+    account_id: "000000000000"
+    auth:
+      - aws-cli/setup:
+          aws_access_key_id: AWS_ACCESS_KEY_ID
+          aws_secret_access_key: AWS_SECRET_ACCESS_KEY
+    path: dockerfiles/elasticsearch
+    build_path: dockerfiles/elasticsearch
+    region: ap-northeast-1
+    repo: sample/containers/elasticsearch
 
 jobs:
-  test:
+  validate-swagger-files:
     docker:
-      - image: cimg/ruby:3.1.2-browsers
-        entrypoint: /bin/sh
-        user: root
-    working_directory: ~/sample
+      - image: usabillabv/openapi3-validator
     steps:
       - checkout
+      - run:
+          name: validate swagger.yml
+          command: |
+            python /opt/openapi-validator/validator.py swagger/swagger.yml
+      - run:
+          name: validate connect_swagger.yml
+          command: |
+            python /opt/openapi-validator/validator.py swagger/connect_swagger.yml
+      - run:
+          name: validate lab_swagger.yml
+          command: |
+            python /opt/openapi-validator/validator.py swagger/lab_swagger.yml
+      - run:
+          name: validate queuing_swagger.yml
+          command: |
+            python /opt/openapi-validator/validator.py swagger/queuing_swagger.yml
+  test:
+    <<: *sample_image
+    parallelism: 6
+    resource_class: medium+
+    working_directory: ~/sample
+    environment:
+      TZ: Asia/Tokyo
+      PARALLEL_TESTS_CONCURRENCY: 3
+    steps:
+      - checkout
+      - *add_ssh_keys
+      - *git_submodule_update
       - *restore_bundler_cache
+      - *restore_freetds_cache
+      - *install_freetds
+      - *save_freetds_cache
+      - *install_mecab
       - *bundle_install
       - *save_bundler_cache
+      - *update_mecabrc
+      - *restore_npm_cache
+      - *npm_install
+      - *save_npm_cache
+      - browser-tools/install-chrome:
+        chrome-version: 114.0.5735.198
+      - run:
+          name: swagger.ymlが swagger/schemata内のfileを rails dev:swagger:mergeで結合したもので更新されているか確認
+          command: |
+            ./node_modules/swagger-merger/bin/swagger-merger.js -i ./swagger/schemata/manifest.yml -o /tmp/swagger.yml
+            diff ./swagger/swagger.yml /tmp/swagger.yml
+      - run:
+          name: webpack
+          command: |
+            NODE_OPTIONS="--max-old-space-size=512" ./node_modules/.bin/webpack
       - run:
           name: Set up DB
           command: |
-            bundle exec rails db:create db:setup RAILS_ENV=test
+            bundle exec rails "parallel:setup[${PARALLEL_TESTS_CONCURRENCY}]"
       - run:
           name: Rubocop
           command: bundle exec rubocop
       - run: |
           mkdir test_results
           TEST_FILES=$(circleci tests glob "spec/**/*_spec.rb")
-          echo "$TEST_FILES" | circleci tests run --command="xargs bundle exec rspec --profile 10 --format RspecJunitFormatter --out test_results/rspec.xml --failure-exit-code=0" --verbose --split-by=timings
+          echo "$TEST_FILES" | circleci tests run --command="xargs bundle exec parallel_rspec -n ${PARALLEL_TESTS_CONCURRENCY}" --verbose --split-by=timings
       - run: bundle exec rspec --only-failures
       - store_test_results:
           path: test_results
@@ -53,103 +213,64 @@ jobs:
           path: coverage
       - store_artifacts:
           path: tmp/screenshots
-      - run:
-          name: Copy coverage results
-          command: |
-            mkdir /tmp/coverage
-            cp coverage/.resultset.json "/tmp/coverage/.resultset-${CIRCLE_NODE_INDEX}.json"
-      - persist_to_workspace:
-          root: /tmp/coverage
-          paths:
-            - .resultset-*.json
-  build_github_pages_artifact:
-    docker:
-      - image: cimg/ruby:3.1.2-browsers
-        entrypoint: /bin/sh
-        user: root
+  # TODO: eslintをGitHub Actionsに移行できそう
+  # https://github.com/reviewdog/action-eslint
+  reviewdog:
+    <<: *sample_image
     resource_class: medium+
     working_directory: ~/sample
+    environment:
+      TZ: Asia/Tokyo
     steps:
       - checkout
-      - gh/install
       - *restore_bundler_cache
+      - *restore_freetds_cache
+      - *install_freetds
+      - *save_freetds_cache
       - *bundle_install
       - *save_bundler_cache
-      - attach_workspace:
-          at: /tmp/coverage
+      - *restore_npm_cache
+      - *npm_install
+      - *save_npm_cache
       - run:
-          name: Collates all result sets
-          command: bundle exec rails "coverage:report[/tmp/coverage/.resultset-*.json]"
+          name: Install reviewdog
+          command: curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s -- -b ./bin
+          when: always
       - run:
-          name: Checkout swagger-api/swagger-ui
-          command: |
-            cd tmp
-            git clone https://github.com/swagger-api/swagger-ui --depth 1 -b v4.15.5
+          name: ESLintによるコーディングスタイルのチェックとreviewdogによる報告
+          command: git diff --name-only --diff-filter=ACMR origin/master -- "app/**/*.js" | xargs -r npx eslint | ./bin/reviewdog -f=eslint -reporter=github-pr-review -diff="git diff origin/master app/**/*.js"
+          when: always
       - run:
-          name: Build GitHub Pages artifact
-          command: |
-            mkdir -p tmp/github_pages_artifact/swagger-ui
-            cp -Lr docs/dist/swagger-ui/* tmp/github_pages_artifact/swagger-ui/
-            cp -n tmp/swagger-ui/dist/* tmp/github_pages_artifact/swagger-ui/
-            cp -r coverage tmp/github_pages_artifact/
-            cd tmp
-            tar czf github_pages_artifact.tgz github_pages_artifact/
-      - store_artifacts:
-          path: tmp/github_pages_artifact
-      - run:
-          name: Upload github_pages_artifact to GitHub Release
-          command: |
-            gh release create ${CIRCLE_SHA1} tmp/github_pages_artifact.tgz -d --target ${CIRCLE_BRANCH} -t "GitHub Pages artifact v${CIRCLE_BUILD_NUM}" -n "GitHub Pages artifact"
-
-  run_deploy_github_pages:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - gh/install
-      - run:
-          name: Run deploy_github_pages
-          command: |
-            gh workflow run deploy_github_pages.yml --ref ${CIRCLE_BRANCH} -f "release_tag=${CIRCLE_SHA1}"
-
-  run_report_coverage:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - gh/install
-      - run:
-          name: Run report_coverage
-          command: |
-            gh workflow run report_coverage.yml --ref ${CIRCLE_BRANCH} -f "release_tag=${CIRCLE_SHA1}"
+          name: StyleLintによるコーディングスタイルのチェックとreviewdogによる報告
+          command: git diff --name-only --diff-filter=ACMR origin/master -- "app/**/*.scss" | xargs -r npx stylelint | ./bin/reviewdog -f=stylelint -reporter=github-pr-review -diff="git diff origin/master app/**/*.scss"
+          when: always
 
 workflows:
   version: 2
   deploy:
     jobs:
+      - validate-swagger-files:
+          filters:
+            branches:
+              ignore:
+                - release
+      - aws-ecr/build_and_push_image:
+          <<: *build-and-push-elasticsearch-image-staging
+          name: build-and-push-elasticsearch-image-staging
+          filters:
+            branches:
+              ignore:
+                - release
       - test:
+          requires:
+            - build-and-push-elasticsearch-image-staging
           filters:
             branches:
               ignore:
                 - release
-      - build_github_pages_artifact:
-          requires:
-            - test
+      - reviewdog:
           filters:
             branches:
               ignore:
                 - release
-      - run_deploy_github_pages:
-          requires:
-            - build_github_pages_artifact
-          filters:
-            branches:
-              only:
-                - main
-      - run_report_coverage:
-          requires:
-            - build_github_pages_artifact
-          filters:
-            branches:
-              ignore:
-                - release
+
