@@ -1,0 +1,236 @@
+name: takuya-shiotari/sample/deploy
+on:
+  push:
+    branches:
+    - main
+jobs:
+  validate-swagger-files:
+    if: github.ref != 'refs/heads/release'
+    runs-on: ubuntu-latest
+    container:
+      image: usabillabv/openapi3-validator
+    steps:
+    - uses: actions/checkout@v4.1.0
+    - name: validate swagger.yml
+      run: python /opt/openapi-validator/validator.py swagger/swagger.yml
+    - name: validate connect_swagger.yml
+      run: python /opt/openapi-validator/validator.py swagger/connect_swagger.yml
+    - name: validate lab_swagger.yml
+      run: python /opt/openapi-validator/validator.py swagger/lab_swagger.yml
+    - name: validate queuing_swagger.yml
+      run: python /opt/openapi-validator/validator.py swagger/queuing_swagger.yml
+  aws-ecr_build_and_push_image:
+    if: github.ref != 'refs/heads/release'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4.1.0
+    - uses: aws-actions/configure-aws-credentials@v4.0.1
+      with:
+        aws-region: "${{ env.ap-northeast-1 }}"
+        aws-access-key-id: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+        aws-secret-access-key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+    - uses: aws-actions/amazon-ecr-login@v2.0.1
+    - run: docker build -f dockerfiles/elasticsearch/Dockerfile -t ${{ env.AWS_ECR_ACCOUNT_URL }}/sample/containers/elasticsearch:latest .
+      timeout-minutes: 10
+    - run: docker push ${{ env.AWS_ECR_ACCOUNT_URL }}/sample/containers/elasticsearch:latest
+  test:
+    if: github.ref != 'refs/heads/release'
+    defaults:
+      run:
+        working-directory: "~/sample"
+    runs-on: ubuntu-latest
+    container:
+      image: cimg/ruby:3.1.2-browsers
+      env:
+        DB_PASSWORD: password
+      options: "--entrypoint /bin/sh  --user root "
+    services:
+      server:
+        image: mcr.microsoft.com/mssql/server:2017-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: password
+      dynamodb:
+        image: circleci/dynamodb
+      elasticsearch:
+        image: 000000000000.dkr.ecr.ap-northeast-1.amazonaws.com/sample/elasticsearch:latest
+        env:
+        - cluster.name=elasticsearch-cluster
+        - node.name=elasticsearch-node1
+        - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+        - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+        - ES_JAVA_OPTS=-Xms256m -Xmx256m
+        - node.name=elasticsearch-node2
+        - node.name=elasticsearch-node3
+        options: " --name elasticsearch-node1  "
+        options: " --name elasticsearch-node2  "
+        options: " --name elasticsearch-node3  "
+    needs:
+    - build-and-push-elasticsearch-image-staging
+    env:
+      TZ: Asia/Tokyo
+      PARALLEL_TESTS_CONCURRENCY: 3
+    steps:
+    - uses: actions/checkout@v4.1.0
+    # Ensure parameter if_key_exists is set correctly
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2.6.1
+      with:
+        key: "${{ secrets.CIRCLE_CI_SSH_KEY }}"
+        name: circle_ci_id_rsa
+        known_hosts: "${{ secrets.CIRCLE_CI_KNOWN_HOSTS }}"
+        if_key_exists: fail
+    - name: git submodule update
+      run: |-
+        git submodule sync
+        git submodule update --init --recursive
+    - name: restore_cache
+      uses: actions/cache@v3.3.2
+      with:
+        key: gems-{{ checksum "Gemfile.lock" }}-{{ .Environment.COMMON_CACHE_KEY }}
+        path: vendor/bundle
+    - name: restore_cache
+      uses: actions/cache@v3.3.2
+      with:
+        key: freetds-1.3.17
+        path: "./freetds-1.3.17"
+        restore-keys: freetds-1.3.17
+    - name: make install freetds for bundle install
+      run: |-
+        if [ ! -d "freetds-1.3.17" ]; then
+          apt-get update --allow-releaseinfo-change
+          apt-get -y install libsasl2-dev
+          wget http://www.freetds.org/files/stable/freetds-1.3.17.tar.gz
+          tar -xzf freetds-1.3.17.tar.gz
+          cd freetds-1.3.17
+          ./configure --with-tdsver=7.4
+          make
+          cd ..
+        fi
+        cd freetds-1.3.17
+        make install
+    - name: apt-get mecab
+      run: |-
+        apt-get update --allow-releaseinfo-change
+        apt-get install -y mecab libmecab-dev mecab-ipadic mecab-ipadic-utf8
+    - name: Bundle Install
+      run: |-
+        gem install bundler:2.4.8
+        bundle install --path=vendor/bundle --jobs=2 --retry=3
+    - name: rake mecab:update_mecabrc
+      run: RAILS_ENV=test bundle exec rake mecab:update_mecabrc
+    - name: restore_cache
+      uses: actions/cache@v3.3.2
+      with:
+        key: npm-cache-{{ checksum "package-lock.json" }}-{{ .Environment.COMMON_CACHE_KEY }}
+        path: node_modules
+    - name: npm install
+      run: npm install
+    - name: swagger.ymlが swagger/schemata内のfileを rails dev:swagger:mergeで結合したもので更新されているか確認
+      run: |-
+        ./node_modules/swagger-merger/bin/swagger-merger.js -i ./swagger/schemata/manifest.yml -o /tmp/swagger.yml
+        diff ./swagger/swagger.yml /tmp/swagger.yml
+    - name: webpack
+      run: NODE_OPTIONS="--max-old-space-size=512" ./node_modules/.bin/webpack
+    - name: Set up DB
+      run: bundle exec rails "parallel:setup[${PARALLEL_TESTS_CONCURRENCY}]"
+    - name: Rubocop
+      run: bundle exec rubocop
+    - run: |
+        mkdir test_results
+        TEST_FILES=$(circleci tests glob "spec/**/*_spec.rb")
+        echo "$TEST_FILES" | circleci tests run --command="xargs bundle exec parallel_rspec -n ${PARALLEL_TESTS_CONCURRENCY}" --verbose --split-by=timings
+    - run: bundle exec rspec --only-failures
+    - uses: actions/upload-artifact@v4.1.0
+      with:
+        path: test_results
+    - uses: actions/upload-artifact@v4.1.0
+      with:
+        path: brakeman
+    - uses: actions/upload-artifact@v4.1.0
+      with:
+        path: coverage
+    - uses: actions/upload-artifact@v4.1.0
+      with:
+        path: tmp/screenshots
+  reviewdog:
+    if: github.ref != 'refs/heads/release'
+    defaults:
+      run:
+        working-directory: "~/sample"
+    runs-on: ubuntu-latest
+    container:
+      image: cimg/ruby:3.1.2-browsers
+      env:
+        DB_PASSWORD: password
+      options: "--entrypoint /bin/sh  --user root "
+    services:
+      server:
+        image: mcr.microsoft.com/mssql/server:2017-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: password
+      dynamodb:
+        image: circleci/dynamodb
+      elasticsearch:
+        image: 000000000000.dkr.ecr.ap-northeast-1.amazonaws.com/sample/elasticsearch:latest
+        env:
+        - cluster.name=elasticsearch-cluster
+        - node.name=elasticsearch-node1
+        - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+        - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+        - ES_JAVA_OPTS=-Xms256m -Xmx256m
+        - node.name=elasticsearch-node2
+        - node.name=elasticsearch-node3
+        options: " --name elasticsearch-node1  "
+        options: " --name elasticsearch-node2  "
+        options: " --name elasticsearch-node3  "
+    env:
+      TZ: Asia/Tokyo
+    steps:
+    - uses: actions/checkout@v4.1.0
+    - name: restore_cache
+      uses: actions/cache@v3.3.2
+      with:
+        key: gems-{{ checksum "Gemfile.lock" }}-{{ .Environment.COMMON_CACHE_KEY }}
+        path: vendor/bundle
+    - name: restore_cache
+      uses: actions/cache@v3.3.2
+      with:
+        key: freetds-1.3.17
+        path: "./freetds-1.3.17"
+        restore-keys: freetds-1.3.17
+    - name: make install freetds for bundle install
+      run: |-
+        if [ ! -d "freetds-1.3.17" ]; then
+          apt-get update --allow-releaseinfo-change
+          apt-get -y install libsasl2-dev
+          wget http://www.freetds.org/files/stable/freetds-1.3.17.tar.gz
+          tar -xzf freetds-1.3.17.tar.gz
+          cd freetds-1.3.17
+          ./configure --with-tdsver=7.4
+          make
+          cd ..
+        fi
+        cd freetds-1.3.17
+        make install
+    - name: Bundle Install
+      run: |-
+        gem install bundler:2.4.8
+        bundle install --path=vendor/bundle --jobs=2 --retry=3
+    - name: restore_cache
+      uses: actions/cache@v3.3.2
+      with:
+        key: npm-cache-{{ checksum "package-lock.json" }}-{{ .Environment.COMMON_CACHE_KEY }}
+        path: node_modules
+    - name: npm install
+      run: npm install
+    - name: Install reviewdog
+      run: curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s -- -b ./bin
+      if: always()
+    - name: ESLintによるコーディングスタイルのチェックとreviewdogによる報告
+      run: git diff --name-only --diff-filter=ACMR origin/master -- "app/**/*.js" | xargs -r npx eslint | ./bin/reviewdog -f=eslint -reporter=github-pr-review -diff="git diff origin/master app/**/*.js"
+      if: always()
+    - name: StyleLintによるコーディングスタイルのチェックとreviewdogによる報告
+      run: git diff --name-only --diff-filter=ACMR origin/master -- "app/**/*.scss" | xargs -r npx stylelint | ./bin/reviewdog -f=stylelint -reporter=github-pr-review -diff="git diff origin/master app/**/*.scss"
+      if: always()
