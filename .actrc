@@ -1,4 +1,6 @@
 -e event.json
 --container-architecture linux/amd64
 --action-offline-mode
---env-file .env
+--env ACTIONS_CACHE_URL=http://gateway.docker.internal:8080/
+--env ACTIONS_RUNTIME_URL=http://gateway.docker.internal:8080/
+--env ACTIONS_RUNTIME_TOKEN=foo
