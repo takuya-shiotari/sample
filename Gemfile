@@ -35,7 +35,7 @@ gem 'bootsnap', '>= 1.4.2', require: false
 
 gem 'psych', '~> 3.1'
 
-gem 'activerecord-sqlserver-adapter'
+gem 'activerecord-sqlserver-adapter', '6.0.0'
 gem 'ddtrace', '1.4.0'
 gem 'dogstatsd-ruby', '5.5.0'
 gem 'google-protobuf', '3.19.4'
