@@ -52,6 +52,7 @@ group :development, :test do
   gem 'pry-byebug'
   gem 'pry-rails'
   gem 'simplecov'
+  gem 'parallel_tests'
 end
 
 group :development do

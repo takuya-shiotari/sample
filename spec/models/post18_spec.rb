@@ -1,4 +1,4 @@
-RSpec.describe Post do
+RSpec.describe 'Post18' do
   describe '#valid?' do
     it 'validates models' do
       post = Post.new(title: 'title', body: 'body')
