@@ -39,3 +39,5 @@ jobs:
         with:
           ruby-version: ${{ env.RUBY_VERSION }}
           bundler-cache: true
+      - name: bundle exec rubocop
+        run: bundle exec rubocop
