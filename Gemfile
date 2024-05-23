@@ -23,7 +23,6 @@ gem 'jbuilder', '~> 2.7'
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 
-gem 'dotenv', require: 'dotenv/load'
 gem 'elasticsearch', '7.13.3'
 gem 'elasticsearch-dsl', '0.1.10'
 gem 'elasticsearch-model', '7.2.1'
@@ -56,6 +55,7 @@ group :development, :test do
 end
 
 group :development do
+  gem 'dotenv', require: 'dotenv/load'
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
   gem 'listen', '~> 3.2'
   gem 'web-console', '>= 3.3.0'
