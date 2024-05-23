@@ -7,7 +7,7 @@
 default: &default
   adapter: sqlserver
   encoding: utf8
-  host: mssql
+  host: localhost
   port: 1433
   username: sa
   password: yourStrong(!)Password
