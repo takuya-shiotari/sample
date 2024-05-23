@@ -18,7 +18,7 @@ jobs:
           - 1443:1443
         env:
           ACCEPT_EULA: "Y"
-          SA_PASSWORD: ${{ env.DB_PASSWORD }}
+          MSSQL_SA_PASSWORD: ${{ env.DB_PASSWORD }}
     strategy:
       matrix:
         ci_node_total:
