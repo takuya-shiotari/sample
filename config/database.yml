@@ -7,10 +7,10 @@
 default: &default
   adapter: sqlserver
   encoding: utf8
-  host: 127.0.0.1
+  host: <%= ENV.fetch('DB_HOST', '127.0.0.1') %>
   port: 1433
-  username: sa
-  password: "yourStrong(!)Password"
+  username: <%= ENV.fetch('DB_USER', '') %>
+  password: <%= ENV.fetch('DB_PASSWORD', 'password') %>
   tds_version: 7.0
   timeout: 15000
   login_timeout: 3000
