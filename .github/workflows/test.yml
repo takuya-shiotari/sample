@@ -45,10 +45,10 @@ jobs:
         run: |
           cd ~/
           if [ ! -d "freetds-${FREETDS_VERSION}" ]; then
-            sudo apt-get update
-            sudo apt-get -y install wget build-essential libc6-dev
-            sudo wget http://www.freetds.org/files/stable/freetds-${FREETDS_VERSION}.tar.gz
-            sudo tar -xzf freetds-${FREETDS_VERSION}.tar.gz
+            sudo apt-get update --allow-releaseinfo-change
+            sudo apt-get -y install libsasl2-dev
+            wget http://www.freetds.org/files/stable/freetds-${FREETDS_VERSION}.tar.gz
+            tar -xzf freetds-${FREETDS_VERSION}.tar.gz
             cd freetds-${FREETDS_VERSION}
             sudo ./configure --with-tdsver=7.4
             sudo make
