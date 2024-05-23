@@ -73,6 +73,7 @@ jobs:
           nc -w 1 -v 127.0.0.1 1433 || true
           nc -w 1 -v 0.0.0.0 1433 || true
           nc -w 1 -v localhost 1433 || true
+          tsql -C
           #TDSVER=7.0 tsql -H 127.0.0.1 -p 1433 -U sa -P $DB_PASSWORD
           bundle exec rails "parallel:setup[2]"
           #bundle exec parallel_rspec -n $PARALLEL_TESTS_CONCURRENCY --only-group $CONCURRENCY_INDEX
