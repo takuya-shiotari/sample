@@ -5,12 +5,12 @@
 #   gem 'sqlite3'
 #
 default: &default
-  adapter: sqlserver
+  adapter: mysql2
   encoding: utf8
-  host: 127.0.0.1
-  port: 1433
-  username: sa
-  password: yourStrong(!)Password
+  host: mysql
+  port: 3306
+  username: root
+  password: mysql123
   tds_version: 7.4
   timeout: 15000
   login_timeout: 3000

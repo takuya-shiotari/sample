@@ -12,6 +12,11 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     services:
+      mysql:
+        image: mysql:5.7
+        options: --health-cmd "mysqladmin ping -h localhost" --health-interval 20s --health-timeout 10s --health-retries 10
+        env:
+          MYSQL_ROOT_PASSWORD: mysql123
       mssql:
         image: mcr.microsoft.com/mssql/server:2017-latest
         ports:
