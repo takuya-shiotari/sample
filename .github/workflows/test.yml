@@ -70,9 +70,9 @@ jobs:
         run: |
           yarn install --check-files
           sudo apt-get update && sudo apt-get install netcat
+          sleep 60
           nc -w 1 -v 127.0.0.1 1433 || true
           nc -w 1 -v 0.0.0.0 1433 || true
-          nc -w 1 -v mssql 1433 || true
           nc -w 1 -v localhost 1433 || true
           bundle exec rails db:create db:setup
           #bundle exec rails "parallel:setup[2]"
