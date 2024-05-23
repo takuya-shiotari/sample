@@ -68,14 +68,5 @@ jobs:
           PARALLEL_TESTS_CONCURRENCY: ${{ matrix.ci_node_total }}
           CONCURRENCY_INDEX: ${{ matrix.ci_node_index }}
         run: |
-          yarn install --check-files
-          sudo apt-get update && sudo apt-get install netcat
-          nc -w 1 -v 127.0.0.1 1433 || true
-          nc -w 1 -v 0.0.0.0 1433 || true
-          nc -w 1 -v localhost 1433 || true
-          tsql -C
-          cat /etc/freetds.conf || true
-          cat /usr/local/etc/freetds.conf || true
-          #TDSVER=7.0 tsql -H 127.0.0.1 -p 1433 -U sa -P $DB_PASSWORD
           bundle exec rails "parallel:setup[2]"
-          #bundle exec parallel_rspec -n $PARALLEL_TESTS_CONCURRENCY --only-group $CONCURRENCY_INDEX
+          bundle exec parallel_rspec -n $PARALLEL_TESTS_CONCURRENCY --only-group $CONCURRENCY_INDEX
