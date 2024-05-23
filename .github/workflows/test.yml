@@ -69,6 +69,7 @@ jobs:
           CONCURRENCY_INDEX: ${{ matrix.ci_node_index }}
         run: |
           yarn install --check-files
-          bundle exec rails db:create db:setup
+          tsql -C
+          # bundle exec rails db:create db:setup
           #bundle exec rails "parallel:setup[2]"
           #bundle exec parallel_rspec -n $PARALLEL_TESTS_CONCURRENCY --only-group $CONCURRENCY_INDEX
