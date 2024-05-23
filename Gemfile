@@ -24,10 +24,10 @@ gem 'jbuilder', '~> 2.7'
 # gem 'image_processing', '~> 1.2'
 
 gem 'dotenv', require: 'dotenv/load'
-gem 'redis'
 gem 'elasticsearch', '7.13.3'
-gem 'elasticsearch-model', '7.2.1'
 gem 'elasticsearch-dsl', '0.1.10'
+gem 'elasticsearch-model', '7.2.1'
+gem 'redis'
 
 gem 'lograge'
 
@@ -36,10 +36,10 @@ gem 'bootsnap', '>= 1.4.2', require: false
 
 gem 'psych', '~> 3.1'
 
-gem 'ddtrace', '1.4.0'
-gem 'google-protobuf', '3.19.4'
-gem 'dogstatsd-ruby', '5.5.0'
 gem 'activerecord-sqlserver-adapter'
+gem 'ddtrace', '1.4.0'
+gem 'dogstatsd-ruby', '5.5.0'
+gem 'google-protobuf', '3.19.4'
 
 gem 'parallel'
 
@@ -49,9 +49,9 @@ gem 'aws-sdk-s3', '1.140.0'
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
-  gem 'simplecov'
-  gem 'pry-rails'
   gem 'pry-byebug'
+  gem 'pry-rails'
+  gem 'simplecov'
 end
 
 group :development do

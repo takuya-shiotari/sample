@@ -15,7 +15,7 @@ Rails.application.configure do
   # Enable/disable caching. By default caching is disabled.
   # Run rails dev:cache to toggle caching.
   config.cache_store = :redis_cache_store, {
-    url: ENV['REDIS_URL'],
+    url: ENV.fetch('REDIS_URL', nil),
     expires_in: 1.hour
   }
 
