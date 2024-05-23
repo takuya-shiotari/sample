@@ -11,7 +11,7 @@ default: &default
   port: 1433
   username: sa
   password: "yourStrong(!)Password"
-  tds_version: 7.4
+  tds_version: 7
   timeout: 15000
   login_timeout: 3000
 
