@@ -9,7 +9,7 @@ env:
   DB_PASSWORD: "yourStrong(!)Password"
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-22.04
     services:
       mssql:
@@ -75,3 +75,24 @@ jobs:
         with:
           name: code-coverage-report-${{ matrix.ci_node_index }}
           path: coverage/.resultset.json
+
+  report_coverage:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4.1.0
+      - name: download artifacts
+        uses: actions/download-artifact@v3
+      - name: move generated files
+        run: |
+          set -euxo pipefail
+
+          mkdir -p coverage
+          artifacts=($(ls))
+          for i in "${!artifacts[@]}"; do
+            artifact="${artifacts[$i]}"
+
+            file_path=$(echo "$artifact" | basenc --base64url --decode)
+            mv "${artifact}/generated-file.txt" coverage/"$file_path"
+	          rm -r "${artifact}"
+          done
+          ls -lah coverage
