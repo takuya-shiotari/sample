@@ -77,6 +77,7 @@ jobs:
           path: coverage/.resultset.json
 
   report_coverage:
+    needs: test
     runs-on: ubuntu-22.04
     steps:
       # - uses: actions/checkout@v4.1.0
