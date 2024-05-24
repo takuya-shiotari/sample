@@ -20,7 +20,7 @@ jobs:
           RUN_ID=`gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            "/repos/${$GITHUB_REPOSITORY}/actions/runs?head_sha=${GITHUB_SHA}&event=push&status=success" | jq ".workflow_runs[0].id"`
+            "/repos/${$GITHUB_REPOSITORY}/actions/runs?head_sha=${{ github.event.pull_request.head.sha }}&event=push&status=success" | jq ".workflow_runs[0].id"`
           if [ -z $RUN_ID ]; then
             echo "skip_octocov=true" >> $GITHUB_OUTPUT
             exit 0
