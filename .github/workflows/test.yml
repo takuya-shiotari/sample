@@ -153,7 +153,7 @@ jobs:
         with:
           path: github_pages_artifact/
 
-  deplo_github_pagesy:
+  deploy_github_pages:
     needs: build_github_pages
     permissions:
       pages: write
