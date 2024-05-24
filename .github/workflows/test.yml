@@ -86,9 +86,11 @@ jobs:
       - name: move generated files
         run: |
           mkdir -p coverage
+          ls -lah
           artifacts=($(ls))
           for i in "${!artifacts[@]}"; do
             artifact="${artifacts[$i]}"
+            ls -lah artifact
             mv ${artifact}/.resultset.json coverage/.resultset-${artifact}.json
             rm -r "${artifact}"
           done
