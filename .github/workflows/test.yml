@@ -87,7 +87,7 @@ jobs:
         run: |
           mkdir -p /tmp/coverage
           artifacts=($(ls))
-          for artifacts in "${artifacts[@]}"; do
+          for artifact in "${artifacts[@]}"; do
             mv ${artifact}/.resultset.json /tmp/coverage/.resultset-${artifact}.json
             rm -r "${artifact}"
           done
