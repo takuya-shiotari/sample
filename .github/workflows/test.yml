@@ -82,7 +82,7 @@ jobs:
     steps:
       # - uses: actions/checkout@v4.1.0
       - name: download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
       - name: move generated files
         run: |
           mkdir -p coverage
