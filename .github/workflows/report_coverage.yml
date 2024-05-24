@@ -1,0 +1,46 @@
+name: Report coverage
+
+on:
+  pull_request:
+    types: opened
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4.1.0
+        with:
+          fetch-depth: 0
+      - name: Download coverage
+        id: download_coverage
+        run: |
+          RUN_ID=`gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/${$GITHUB_REPOSITORY}/actions/runs?head_sha=${GITHUB_SHA}&event=push&status=success" | jq ".workflow_runs[0].id"`
+          if [ -z $RUN_ID ]; then
+            echo "skip_octocov=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          ARTIFACT_ID=`gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/${$GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/artifacts?name=coverage" | jq ".artifacts[0].id"`
+          if [ -z $ARTIFACT_ID ]; then
+            echo "skip_octocov=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/${$GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip > artifact.zip
+          mkdir -p coverage
+          unzip artifact.zip -d coverage
+      - name: Coverage Report by octocov
+        uses: k1LoW/octocov-action@v1
+        if: ${{ steps.download_coverage.outputs.skip_octocov != 'true' }}
