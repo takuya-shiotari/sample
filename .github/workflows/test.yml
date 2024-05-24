@@ -80,7 +80,6 @@ jobs:
     needs: test
     runs-on: ubuntu-22.04
     steps:
-      # - uses: actions/checkout@v4.1.0
       - name: download artifacts
         uses: actions/download-artifact@v4
       - name: move generated files
@@ -91,4 +90,16 @@ jobs:
             mv ${artifact}/.resultset.json /tmp/coverage/.resultset-${artifact}.json
             rm -r "${artifact}"
           done
-          ls /tmp/coverage
+      - uses: actions/checkout@v4.1.0
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+      - name: Collates all result sets
+        run: bundle exec rails "coverage:report[/tmp/coverage/.resultset-*.json]"
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/.resultset.json
