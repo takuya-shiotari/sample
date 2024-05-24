@@ -85,13 +85,10 @@ jobs:
         uses: actions/download-artifact@v4
       - name: move generated files
         run: |
-          mkdir -p coverage
-          ls -lah
+          mkdir -p /tmp/coverage
           artifacts=($(ls))
-          for i in "${!artifacts[@]}"; do
-            artifact="${artifacts[$i]}"
-            ls -lah artifact
-            mv ${artifact}/.resultset.json coverage/.resultset-${artifact}.json
+          for artifacts in "${artifacts[@]}"; do
+            mv ${artifact}/.resultset.json /tmp/coverage/.resultset-${artifact}.json
             rm -r "${artifact}"
           done
-          ls -lah coverage
+          ls /tmp/coverage
