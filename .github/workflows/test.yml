@@ -69,9 +69,9 @@ jobs:
         run: |
           bundle exec rails "parallel:setup[2]"
           bundle exec parallel_rspec -n $PARALLEL_TESTS_CONCURRENCY --only-group $CONCURRENCY_INDEX
-          cp coverage/.resultset.json coverage/.resultset-${{ matrix.ci_node_index }}.json
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
         with:
-          path: coverage/.resultset-${{ matrix.ci_node_index }}.json
+          name: code-coverage-report-${{ matrix.ci_node_index }}
+          path: coverage/.resultset.json
