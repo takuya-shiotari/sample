@@ -23,4 +23,8 @@ class Post < ApplicationRecord
   def title_with_default
     title.presence || 'No title'
   end
+
+  def baz
+    'baz'
+  end
 end
