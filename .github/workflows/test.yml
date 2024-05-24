@@ -105,6 +105,7 @@ jobs:
           path: coverage
 
   build_github_pages:
+    needs: report_coverage
     runs-on: ubuntu-latest
     steps:
       - name: download artifacts
