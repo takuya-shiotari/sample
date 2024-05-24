@@ -85,14 +85,12 @@ jobs:
       - name: move generated files
         run: |
           set -euxo pipefail
-
           mkdir -p coverage
           artifacts=($(ls))
           for i in "${!artifacts[@]}"; do
             artifact="${artifacts[$i]}"
-
             file_path=$(echo "$artifact" | basenc --base64url --decode)
             mv "${artifact}/generated-file.txt" coverage/"$file_path"
-	          rm -r "${artifact}"
+            rm -r "${artifact}"
           done
           ls -lah coverage
