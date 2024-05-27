@@ -277,4 +277,4 @@ jobs:
         with:
           fetch-depth: 0
       - name: Validate swagger.yml
-        run: docker run -it --rm -v $(pwd):/project -w /project usabillabv/openapi3-validator swagger/swagger.yml
+        run: docker run --rm -v $(pwd):/project -w /project usabillabv/openapi3-validator swagger/swagger.yml
