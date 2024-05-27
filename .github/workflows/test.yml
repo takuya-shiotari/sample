@@ -10,7 +10,7 @@ env:
   ECR_DOCKER_USERNAME: AWS
 
 jobs:
-  build_elasticserach:
+  build-elasticserach:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4.1.0
@@ -41,11 +41,10 @@ jobs:
           mask-password: 'false'
     outputs:
       registry: ${{ steps.login-ecr.outputs.registry }}
-      # docker_username: ${{ steps.login-ecr.outputs.docker_username_321055706437_dkr_ecr_ap_northeast_1_amazonaws_com }}
-      docker_password: ${{ steps.login-ecr.outputs.docker_password_321055706437_dkr_ecr_ap_northeast_1_amazonaws_com }}
+      docker_password: ${{ format('steps.login-ecr.outputs.docker_password_{0}_dkr_ecr_{1}_amazonaws_com', secrets.AWS_ACCOUNT_ID, secrets.AWS_REGION_UNDERSCORE) }}
   test:
     runs-on: ubuntu-22.04
-    needs: build_elasticserach
+    needs: build-elasticserach
     services:
       mssql:
         image: mcr.microsoft.com/mssql/server:2017-latest
@@ -59,10 +58,10 @@ jobs:
         ports:
           - 8000:8000
       elasticsearch1:
-        image: ${{ needs.build_elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+        image: ${{ needs.build-elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
         credentials:
           username: ${{ env.ECR_DOCKER_USERNAME }}
-          password: ${{ needs.build_elasticserach.outputs.docker_password }}
+          password: ${{ needs.build-elasticserach.outputs.docker_password }}
         env:
           cluster.name: elasticsearch-cluster
           node.name: elasticsearch-node1
@@ -70,10 +69,10 @@ jobs:
           cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
           ES_JAVA_OPTS: -Xms256m -Xmx256m
       elasticsearch2:
-        image: ${{ needs.build_elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+        image: ${{ needs.build-elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
         credentials:
           username: ${{ env.ECR_DOCKER_USERNAME }}
-          password: ${{ needs.build_elasticserach.outputs.docker_password }}
+          password: ${{ needs.build-elasticserach.outputs.docker_password }}
         env:
           cluster.name: elasticsearch-cluster
           node.name: elasticsearch-node2
@@ -81,10 +80,10 @@ jobs:
           cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
           ES_JAVA_OPTS: -Xms256m -Xmx256m
       elasticsearch3:
-        image: ${{ needs.build_elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+        image: ${{ needs.build-elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
         credentials:
           username: ${{ env.ECR_DOCKER_USERNAME }}
-          password: ${{ needs.build_elasticserach.outputs.docker_password }}
+          password: ${{ needs.build-elasticserach.outputs.docker_password }}
         env:
           cluster.name: elasticsearch-cluster
           node.name: elasticsearch-node3
@@ -176,7 +175,7 @@ jobs:
           name: coverage-${{ matrix.ci_node_index }}
           path: coverage/.resultset.json
 
-  merge_coverage:
+  merge-coverage:
     needs: test
     runs-on: ubuntu-22.04
     steps:
@@ -210,8 +209,8 @@ jobs:
           name: coverage
           path: coverage
 
-  report_coverage:
-    needs: merge_coverage
+  report-coverage:
+    needs: merge-coverage
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.1.0
@@ -225,8 +224,8 @@ jobs:
       - name: Coverage Report by octocov
         uses: k1LoW/octocov-action@v1
 
-  build_github_pages:
-    needs: merge_coverage
+  build-github-pages:
+    needs: merge-coverage
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
@@ -255,8 +254,8 @@ jobs:
         with:
           path: github_pages_artifact/
 
-  deploy_github_pages:
-    needs: build_github_pages
+  deploy-github-pages:
+    needs: build-github-pages
     permissions:
       pages: write
       id-token: write
