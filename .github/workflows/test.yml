@@ -45,7 +45,7 @@ jobs:
       docker_password: ${{ steps.login-ecr.outputs.docker_password_321055706437_dkr_ecr_ap_northeast_1_amazonaws_com }}
   test:
     runs-on: ubuntu-22.04
-    needs: build-elasticearch
+    needs: build-elasticsearch
     services:
       mssql:
         image: mcr.microsoft.com/mssql/server:2017-latest
