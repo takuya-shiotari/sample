@@ -7,6 +7,7 @@ env:
   DB_HOST: 127.0.0.1
   DB_USER: sa
   DB_PASSWORD: "yourStrong(!)Password"
+  ECR_DOCKER_USERNAME: AWS
 
 jobs:
   build_elasticserach:
@@ -56,7 +57,7 @@ jobs:
       elasticsearch:
         image: ${{ needs.build_elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
         credentials:
-          username: AWS
+          username: ${{ env.ECR_DOCKER_USERNAME }}
           password: ${{ needs.build_elasticserach.outputs.docker_password }}
     strategy:
       matrix:
