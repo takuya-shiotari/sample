@@ -7,7 +7,6 @@ env:
   DB_HOST: 127.0.0.1
   DB_USER: sa
   DB_PASSWORD: "yourStrong(!)Password"
-  IMAGE_TAG: latest
 
 jobs:
   build_elasticserach:
@@ -33,7 +32,7 @@ jobs:
           push: true
           provenance: false
           context: containers/elasticsearch
-          tags: ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          tags: ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:latest
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -42,6 +41,7 @@ jobs:
     outputs:
       registry: ${{ steps.login-ecr.outputs.registry }}
       # docker_username: ${{ steps.login-ecr.outputs.docker_username_321055706437_dkr_ecr_ap_northeast_1_amazonaws_com }}
+      docker_username: AWS
       docker_password: ${{ steps.login-ecr.outputs.docker_password_321055706437_dkr_ecr_ap_northeast_1_amazonaws_com }}
   test:
     runs-on: ubuntu-22.04
@@ -55,10 +55,9 @@ jobs:
           ACCEPT_EULA: "Y"
           SA_PASSWORD: ${{ env.DB_PASSWORD }}
       elasticsearch:
-        image: ${{ needs.build_elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+        image: ${{ needs.build_elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
         credentials:
-          # username: ${{ needs.build_elasticserach.outputs.docker_username }}
-          username: AWS
+          username: ${{ needs.build_elasticserach.outputs.docker_username }}
           password: ${{ needs.build_elasticserach.outputs.docker_password }}
     strategy:
       matrix:
