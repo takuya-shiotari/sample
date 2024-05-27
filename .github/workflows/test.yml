@@ -54,6 +54,10 @@ jobs:
         env:
           ACCEPT_EULA: "Y"
           SA_PASSWORD: ${{ env.DB_PASSWORD }}
+      dynamodb-local:
+        image: amazon/dynamodb-local:1.17.0
+        ports:
+          - 8000:8000
       elasticsearch1:
         image: ${{ needs.build_elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
         credentials:
