@@ -22,7 +22,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
-          output-credentials: true
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -34,6 +33,15 @@ jobs:
           provenance: false
           context: containers/elasticsearch
           tags: ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:latest
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          mask-password: 'false'
+    outputs:
+      registry: ${{ steps.login-ecr.outputs.registry }}
+      docker_username: ${{ steps.login-ecr.outputs.docker_username_321055706437_dkr_ecr_ap_northeast_1_amazonaws_com }}
+      docker_password: ${{ steps.login-ecr.outputs.docker_password_321055706437_dkr_ecr_ap_northeast_1_amazonaws_com }}
   test:
     runs-on: ubuntu-22.04
     needs: build_elasticserach
@@ -45,6 +53,11 @@ jobs:
         env:
           ACCEPT_EULA: "Y"
           SA_PASSWORD: ${{ env.DB_PASSWORD }}
+      elasticsearch:
+        image: ${{ needs.build_elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+        credentials:
+          username: ${{ needs.build_elasticserach.outputs.docker_username }}
+          password: ${{ needs.build_elasticserach.outputs.docker_password }}
     strategy:
       matrix:
         ci_node_total:
