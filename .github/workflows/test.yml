@@ -45,7 +45,6 @@ jobs:
         env:
           ACCEPT_EULA: "Y"
           SA_PASSWORD: ${{ env.DB_PASSWORD }}
-      elasticsearch:
     strategy:
       matrix:
         ci_node_total:
