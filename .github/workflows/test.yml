@@ -54,11 +54,39 @@ jobs:
         env:
           ACCEPT_EULA: "Y"
           SA_PASSWORD: ${{ env.DB_PASSWORD }}
-      elasticsearch:
+      elasticsearch1:
         image: ${{ needs.build_elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
         credentials:
           username: ${{ env.ECR_DOCKER_USERNAME }}
           password: ${{ needs.build_elasticserach.outputs.docker_password }}
+        env:
+          - cluster.name=elasticsearch-cluster
+          - node.name=elasticsearch-node1
+          - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
+      elasticsearch2:
+        image: ${{ needs.build_elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+        credentials:
+          username: ${{ env.ECR_DOCKER_USERNAME }}
+          password: ${{ needs.build_elasticserach.outputs.docker_password }}
+        env:
+          - cluster.name=elasticsearch-cluster
+          - node.name=elasticsearch-node2
+          - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
+      elasticsearch3:
+        image: ${{ needs.build_elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+        credentials:
+          username: ${{ env.ECR_DOCKER_USERNAME }}
+          password: ${{ needs.build_elasticserach.outputs.docker_password }}
+        env:
+          - cluster.name=elasticsearch-cluster
+          - node.name=elasticsearch-node3
+          - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
     strategy:
       matrix:
         ci_node_total:
