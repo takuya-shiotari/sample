@@ -61,7 +61,7 @@ jobs:
           ACCEPT_EULA: "Y"
           SA_PASSWORD: ${{ env.DB_PASSWORD }}
       elasticsearch:
-        image: ${{ needs.build_elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+        image: "${{ needs.build_elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
         credentials:
           username: ${{ needs.build_elasticserach.outputs.docker_username }}
           password: ${{ needs.build_elasticserach.outputs.docker_password }}
