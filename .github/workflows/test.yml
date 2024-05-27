@@ -10,7 +10,7 @@ env:
   ECR_DOCKER_USERNAME: AWS
 
 jobs:
-  build-elasticserach:
+  build-elasticsearch:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4.1.0
@@ -41,10 +41,11 @@ jobs:
           mask-password: 'false'
     outputs:
       registry: ${{ steps.login-ecr.outputs.registry }}
-      docker_password: ${{ format('steps.login-ecr.outputs.docker_password_{0}_dkr_ecr_{1}_amazonaws_com', vars.AWS_ACCOUNT_ID, vars.AWS_REGION_UNDERSCORE) }}
+      # do docker_password: ${{ steps.login-ecr.outputs.docker_password_321055706437_dkr_ecr_ap_northeast_1_amazonaws_com }}cker_password: ${{ format('steps.login-ecr.outputs.docker_password_{0}_dkr_ecr_{1}_amazonaws_com', vars.AWS_ACCOUNT_ID, vars.AWS_REGION_UNDERSCORE) }}
+      docker_password: ${{ steps.login-ecr.outputs.docker_password_321055706437_dkr_ecr_ap_northeast_1_amazonaws_com }}
   test:
     runs-on: ubuntu-22.04
-    needs: build-elasticserach
+    needs: build-elasticearch
     services:
       mssql:
         image: mcr.microsoft.com/mssql/server:2017-latest
@@ -58,10 +59,10 @@ jobs:
         ports:
           - 8000:8000
       elasticsearch1:
-        image: ${{ needs.build-elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+        image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
         credentials:
           username: ${{ env.ECR_DOCKER_USERNAME }}
-          password: ${{ needs.build-elasticserach.outputs.docker_password }}
+          password: ${{ needs.build-elasticsearch.outputs.docker_password }}
         env:
           cluster.name: elasticsearch-cluster
           node.name: elasticsearch-node1
@@ -69,10 +70,10 @@ jobs:
           cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
           ES_JAVA_OPTS: -Xms256m -Xmx256m
       elasticsearch2:
-        image: ${{ needs.build-elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+        image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
         credentials:
           username: ${{ env.ECR_DOCKER_USERNAME }}
-          password: ${{ needs.build-elasticserach.outputs.docker_password }}
+          password: ${{ needs.build-elasticsearch.outputs.docker_password }}
         env:
           cluster.name: elasticsearch-cluster
           node.name: elasticsearch-node2
@@ -80,10 +81,10 @@ jobs:
           cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
           ES_JAVA_OPTS: -Xms256m -Xmx256m
       elasticsearch3:
-        image: ${{ needs.build-elasticserach.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+        image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
         credentials:
           username: ${{ env.ECR_DOCKER_USERNAME }}
-          password: ${{ needs.build-elasticserach.outputs.docker_password }}
+          password: ${{ needs.build-elasticsearch.outputs.docker_password }}
         env:
           cluster.name: elasticsearch-cluster
           node.name: elasticsearch-node3
