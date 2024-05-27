@@ -54,6 +54,8 @@ group :development, :test do
   gem 'simplecov'
 end
 
+gem 'natto'
+
 group :development do
   gem 'dotenv', require: 'dotenv/load'
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.

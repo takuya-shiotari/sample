@@ -57,6 +57,10 @@ jobs:
           fi
           cd freetds-${FREETDS_VERSION}
           sudo make install
+      - name: Install mecab
+        run: |
+          sudo apt-get update --allow-releaseinfo-change
+          sudo apt-get install -y mecab libmecab-dev mecab-ipadic mecab-ipadic-utf8
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
