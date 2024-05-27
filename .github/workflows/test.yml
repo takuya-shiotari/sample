@@ -41,7 +41,7 @@ jobs:
           mask-password: 'false'
     outputs:
       registry: ${{ steps.login-ecr.outputs.registry }}
-      # do docker_password: ${{ steps.login-ecr.outputs.docker_password_321055706437_dkr_ecr_ap_northeast_1_amazonaws_com }}cker_password: ${{ format('steps.login-ecr.outputs.docker_password_{0}_dkr_ecr_{1}_amazonaws_com', vars.AWS_ACCOUNT_ID, vars.AWS_REGION_UNDERSCORE) }}
+      # docker_password: ${{ format('steps.login-ecr.outputs.docker_password_{0}_dkr_ecr_{1}_amazonaws_com', vars.AWS_ACCOUNT_ID, vars.AWS_REGION_UNDERSCORE) }}
       docker_password: ${{ steps.login-ecr.outputs.docker_password_321055706437_dkr_ecr_ap_northeast_1_amazonaws_com }}
   test:
     runs-on: ubuntu-22.04
