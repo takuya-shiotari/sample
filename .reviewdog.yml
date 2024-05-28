@@ -1,7 +1,0 @@
-runner:
-  rubocop:
-    cmd: bundle exec rubocop
-  eslint:
-    cmd: git diff --name-only --diff-filter=ACMR origin/main -- "app/**/*.js" | xargs -r npx eslint
-  stylelint:
-    cmd: git diff --name-only --diff-filter=ACMR origin/main -- "app/**/*.scss" | xargs -r npx stylelint
