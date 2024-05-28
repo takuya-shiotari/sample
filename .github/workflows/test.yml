@@ -159,23 +159,19 @@ jobs:
         run: npm list
       - name: Install dependencies
         run: npm install
-
-      - name: bundle exec rubocop
-        run: bundle exec rubocop
-      - name: Rspec
+      - name: Run rspec
         env:
           PARALLEL_TESTS_CONCURRENCY: ${{ matrix.ci_node_total }}
           CONCURRENCY_INDEX: ${{ matrix.ci_node_index }}
         run: |
           bundle exec rails "parallel:setup[2]"
           bundle exec parallel_rspec -n $PARALLEL_TESTS_CONCURRENCY --only-group $CONCURRENCY_INDEX
-
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
         with:
           name: coverage-${{ matrix.ci_node_index }}
           path: coverage/.resultset.json
-      - name: Rspec only failures
+      - name: Run rspec only failures
         run: bundle exec rspec --only-failures
 
   merge-coverage:

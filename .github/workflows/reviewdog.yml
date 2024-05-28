@@ -1,0 +1,26 @@
+name: Validate swagger
+on: push
+
+env:
+  RUBY_VERSION: 3.1.2
+
+jobs:
+  validate-swagger-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.0
+        with:
+          fetch-depth: 0
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
+      - name: Install dependencies
+        run: npm install
+      - name: Run rubocop
+        run: bundle exec rubocop
