@@ -38,7 +38,7 @@ jobs:
           reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
           eslint_flags: $(git diff --name-only --diff-filter=ACMR origin/main -- 'app/**/*.js')
           reviewdog_flags: -diff="git diff origin/main app/**/*.js"
-      - uses: uses: reviewdog/action-stylelint@v1
+      - uses: reviewdog/action-stylelint@v1
         if: always()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
