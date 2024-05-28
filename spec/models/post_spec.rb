@@ -45,7 +45,7 @@ RSpec.describe Post do
   describe '#foo' do
     it 'returns foo' do
       post = Post.new(title: 'title', body: 'body')
-      expect(post.foo).to eq 'bar'
+      expect(post.foo).to eq 'foo'
     end
   end
 end
