@@ -31,3 +31,8 @@ jobs:
           skip_install: true
           use_bundler: true
           fail_on_error: true
+      - uses: reviewdog/action-eslint@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
+          eslint_flags: "src/"

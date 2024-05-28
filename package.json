@@ -7,5 +7,12 @@
     "@rails/activestorage": "^6.0.0",
     "@rails/actioncable": "^6.0.0"
   },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.32.0",
+    "stylelint": "^13.13.1",
+    "stylelint-config-standard": "^22.0.0",
+    "stylelint-scss": "^3.21.0"
+  },
   "version": "0.1.0"
 }
