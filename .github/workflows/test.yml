@@ -175,6 +175,8 @@ jobs:
         with:
           name: coverage-${{ matrix.ci_node_index }}
           path: coverage/.resultset.json
+      - name: Rspec only failures
+        run: bundle exec rspec --only-failures
 
   merge-coverage:
     needs: test
