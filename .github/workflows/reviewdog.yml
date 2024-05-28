@@ -27,7 +27,7 @@ jobs:
         run: npm install
       - uses: reviewdog/action-rubocop@v2
         with:
-          reporter: github-pr-review
+          reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
           skip_install: true
           use_bundler: true
           fail_on_error: true
