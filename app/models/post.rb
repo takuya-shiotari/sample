@@ -24,7 +24,7 @@ class Post < ApplicationRecord
     title.presence || 'No title'
   end
 
-def foo
-"foo"
-end
+  def foo
+    'foo'
+  end
 end
