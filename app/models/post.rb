@@ -27,4 +27,8 @@ class Post < ApplicationRecord
   def foo
     'foo'
   end
+
+  def bar
+    'bar'
+  end
 end
