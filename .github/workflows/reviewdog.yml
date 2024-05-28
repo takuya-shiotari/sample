@@ -34,8 +34,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
-            eslint_flags: app/**/*.js
-            # reviewdog_flags: -diff="git diff origin/main app/**/*.js"
+          eslint_flags: app/**/*.js
+          # reviewdog_flags: -diff="git diff origin/main app/**/*.js"
           fail_on_error: true
       - uses: reviewdog/action-stylelint@v1
         if: always()
