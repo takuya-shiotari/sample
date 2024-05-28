@@ -1,4 +1,4 @@
-name: Validate swagger
+name: Reviewdog
 on: push
 
 env:
