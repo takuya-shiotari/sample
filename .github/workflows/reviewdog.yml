@@ -37,8 +37,14 @@ jobs:
           eslint_flags: $(git diff --name-only --diff-filter=ACMR origin/main -- 'app/**/*.js')
           reviewdog_flags: -diff="git diff origin/main app/**/*.js"
           fail_on_error: true
-      - uses: reviewdog/action-stylelint@v1
+      - name: Filter cached scss
+        id: filter-cached-scss
         if: always()
+        run: |
+          files=$(git diff --name-only --diff-filter=ACMR origin/main -- 'app/**/*.scss')
+          echo "files=${files}" >> $GITHUB_OUTPUT
+      - uses: reviewdog/action-stylelint@v1
+        if: ${{ steps.filter-cached-scss.outputs.files != '' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
