@@ -1,4 +1,5 @@
 name: Validate swagger
+
 on: push
 
 jobs:

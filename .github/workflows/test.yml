@@ -1,4 +1,5 @@
 name: Test
+
 on: push
 
 env:
@@ -10,38 +11,8 @@ env:
 
 jobs:
   build-elasticsearch:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4.1.0
-        with:
-          fetch-depth: 0
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ vars.ECR_REGISTRY }}
-      - name: Build and push API
-        uses: docker/build-push-action@v5
-        with:
-          push: true
-          provenance: false
-          context: containers/elasticsearch
-          tags: ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:latest
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          mask-password: 'false'
-    outputs:
-      registry: ${{ steps.login-ecr.outputs.registry }}
-      # docker_password: ${{ format('steps.login-ecr.outputs.docker_password_{0}_dkr_ecr_{1}_amazonaws_com', vars.AWS_ACCOUNT_ID, vars.AWS_REGION_UNDERSCORE) }}
-      docker_password: ${{ steps.login-ecr.outputs.docker_password_321055706437_dkr_ecr_ap_northeast_1_amazonaws_com }}
+    uses: ./.github/workflows/build-elasticsearch.yml
+    secrets: inherit
   test:
     runs-on: ubuntu-22.04
     needs: build-elasticsearch
@@ -61,7 +32,7 @@ jobs:
         image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
         credentials:
           username: ${{ env.ECR_DOCKER_USERNAME }}
-          password: ${{ needs.build-elasticsearch.outputs.docker_password }}
+          password: ${{ needs.build-elasticsearch.outputs.docker-password }}
         env:
           cluster.name: elasticsearch-cluster
           node.name: elasticsearch-node1
@@ -72,7 +43,7 @@ jobs:
         image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
         credentials:
           username: ${{ env.ECR_DOCKER_USERNAME }}
-          password: ${{ needs.build-elasticsearch.outputs.docker_password }}
+          password: ${{ needs.build-elasticsearch.outputs.docker-password }}
         env:
           cluster.name: elasticsearch-cluster
           node.name: elasticsearch-node2
@@ -83,7 +54,7 @@ jobs:
         image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
         credentials:
           username: ${{ env.ECR_DOCKER_USERNAME }}
-          password: ${{ needs.build-elasticsearch.outputs.docker_password }}
+          password: ${{ needs.build-elasticsearch.outputs.docker-password }}
         env:
           cluster.name: elasticsearch-cluster
           node.name: elasticsearch-node3
