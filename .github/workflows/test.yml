@@ -1,7 +1,6 @@
 name: Test
 
-on:
-  push
+on: push
 
 env:
   RUBY_VERSION: 3.1.2
@@ -11,9 +10,9 @@ env:
   ECR_DOCKER_USERNAME: AWS
 
 jobs:
-# build-elasticsearch:
-#   uses: ./.github/workflows/build-elasticsearch.yml
-#   secrets: inherit
+  # build-elasticsearch:
+  #   uses: ./.github/workflows/build-elasticsearch.yml
+  #   secrets: inherit
   test:
     runs-on: ubuntu-22.04
     #needs: build-elasticsearch
@@ -29,39 +28,39 @@ jobs:
         image: amazon/dynamodb-local:1.17.0
         ports:
           - 8000:8000
-#     elasticsearch1:
-#       image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ needs.build-elasticsearch.outputs.tag }}
-#       credentials:
-#         username: ${{ env.ECR_DOCKER_USERNAME }}
-#         password: ${{ needs.build-elasticsearch.outputs.docker-password }}
-#       env:
-#         cluster.name: elasticsearch-cluster
-#         node.name: elasticsearch-node1
-#         discovery.seed_hosts: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-#         cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-#         ES_JAVA_OPTS: -Xms256m -Xmx256m
-#     elasticsearch2:
-#       image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ needs.build-elasticsearch.outputs.tag }}
-#       credentials:
-#         username: ${{ env.ECR_DOCKER_USERNAME }}
-#         password: ${{ needs.build-elasticsearch.outputs.docker-password }}
-#       env:
-#         cluster.name: elasticsearch-cluster
-#         node.name: elasticsearch-node2
-#         discovery.seed_hosts: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-#         cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-#         ES_JAVA_OPTS: -Xms256m -Xmx256m
-#     elasticsearch3:
-#       image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ needs.build-elasticsearch.outputs.tag }}
-#       credentials:
-#         username: ${{ env.ECR_DOCKER_USERNAME }}
-#         password: ${{ needs.build-elasticsearch.outputs.docker-password }}
-#       env:
-#         cluster.name: elasticsearch-cluster
-#         node.name: elasticsearch-node3
-#         discovery.seed_hosts: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-#         cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-#         ES_JAVA_OPTS: -Xms256m -Xmx256m
+    #     elasticsearch1:
+    #       image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ needs.build-elasticsearch.outputs.tag }}
+    #       credentials:
+    #         username: ${{ env.ECR_DOCKER_USERNAME }}
+    #         password: ${{ needs.build-elasticsearch.outputs.docker-password }}
+    #       env:
+    #         cluster.name: elasticsearch-cluster
+    #         node.name: elasticsearch-node1
+    #         discovery.seed_hosts: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+    #         cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+    #         ES_JAVA_OPTS: -Xms256m -Xmx256m
+    #     elasticsearch2:
+    #       image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ needs.build-elasticsearch.outputs.tag }}
+    #       credentials:
+    #         username: ${{ env.ECR_DOCKER_USERNAME }}
+    #         password: ${{ needs.build-elasticsearch.outputs.docker-password }}
+    #       env:
+    #         cluster.name: elasticsearch-cluster
+    #         node.name: elasticsearch-node2
+    #         discovery.seed_hosts: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+    #         cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+    #         ES_JAVA_OPTS: -Xms256m -Xmx256m
+    #     elasticsearch3:
+    #       image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ needs.build-elasticsearch.outputs.tag }}
+    #       credentials:
+    #         username: ${{ env.ECR_DOCKER_USERNAME }}
+    #         password: ${{ needs.build-elasticsearch.outputs.docker-password }}
+    #       env:
+    #         cluster.name: elasticsearch-cluster
+    #         node.name: elasticsearch-node3
+    #         discovery.seed_hosts: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+    #         cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+    #         ES_JAVA_OPTS: -Xms256m -Xmx256m
     strategy:
       fail-fast: false
       matrix:
@@ -81,7 +80,7 @@ jobs:
       - uses: actions/checkout@v4.1.0
         with:
           fetch-depth: 0
-          submodules: 'recursive'
+          submodules: "recursive"
           ssh-key: ${{ secrets.PRIVATE_REPO_SSH_KEY }}
       - uses: ./.github/actions/setup-rails-application
       - name: Run rspec
@@ -93,6 +92,7 @@ jobs:
           # sudo sed -i -e "s/# openssl ciphers = HIGH:\!SSLv2:\!aNULL:-DH/enable tls v1 = True/" /usr/local/etc/freetds.conf
           cat /usr/local/etc/freetds.conf || true
           tsql -C
+          openssl version
           openssl ciphers
           bundle exec rails "parallel:setup[2]" || true
           cat /tmp/freetds.log
@@ -160,7 +160,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: swagger-api/swagger-ui
-          ref: 'v4.15.5'
+          ref: "v4.15.5"
           path: swagger-ui
       - name: Download coverage artifacts
         uses: actions/download-artifact@v4
