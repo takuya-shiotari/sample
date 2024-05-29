@@ -22,6 +22,11 @@ runs:
       with:
         path: ~/freetds-${{ inputs.freetds-version }}
         key: ${{ runner.os }}-freetds
+    - name: Install packages
+      shell: bash
+      run: |
+        sudo apt-get update --allow-releaseinfo-change
+        sudo apt-get install -y wget build-essential python make g++ awscli git mecab libmecab-dev mecab-ipadic mecab-ipadic-utf8 libjemalloc2 pkg-config
     - name: Install freetds
       env:
         FREETDS_VERSION: ${{ inputs.freetds-version }}
@@ -30,7 +35,7 @@ runs:
         cd ~/
         if [ ! -d "freetds-${FREETDS_VERSION}" ]; then
           sudo apt-get update --allow-releaseinfo-change
-          sudo apt-get install -y libsasl2-dev libgnutls28-dev
+          sudo apt-get install -y freetds-dev
           wget http://www.freetds.org/files/stable/freetds-${FREETDS_VERSION}.tar.gz
           tar -xzf freetds-${FREETDS_VERSION}.tar.gz
           cd freetds-${FREETDS_VERSION}
@@ -40,11 +45,6 @@ runs:
         fi
         cd freetds-${FREETDS_VERSION}
         sudo make install
-    - name: Install mecab
-      shell: bash
-      run: |
-        sudo apt-get update --allow-releaseinfo-change
-        sudo apt-get install -y mecab libmecab-dev mecab-ipadic mecab-ipadic-utf8
     - name: Setup Ruby
       uses: ruby/setup-ruby@v1
       with:
