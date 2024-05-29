@@ -15,7 +15,6 @@ runs:
   using: "composite"
   steps:
     - name: Cache freetds
-      id: cache-Primes
       uses: actions/cache@v4
       with:
         path: ~/freetds-${{ inputs.freetds-version }}
