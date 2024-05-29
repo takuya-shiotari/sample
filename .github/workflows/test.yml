@@ -93,7 +93,9 @@ jobs:
           # sudo sed -i -e "s/# openssl ciphers = HIGH:\!SSLv2:\!aNULL:-DH/enable tls v1 = True/" /usr/local/etc/freetds.conf
           cat /usr/local/etc/freetds.conf || true
           tsql -C
-          bundle exec rails "parallel:setup[2]"
+          bundle exec rails "parallel:setup[2]" || true
+          cat /tmp/freetds.log
+
           bundle exec parallel_rspec -n $PARALLEL_TESTS_CONCURRENCY --only-group $CONCURRENCY_INDEX
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
