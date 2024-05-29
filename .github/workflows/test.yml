@@ -93,6 +93,7 @@ jobs:
           # sudo sed -i -e "s/# openssl ciphers = HIGH:\!SSLv2:\!aNULL:-DH/enable tls v1 = True/" /usr/local/etc/freetds.conf
           cat /usr/local/etc/freetds.conf || true
           tsql -C
+          openssl ciphers
           bundle exec rails "parallel:setup[2]" || true
           cat /tmp/freetds.log
 
