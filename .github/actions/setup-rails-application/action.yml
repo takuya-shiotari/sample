@@ -26,7 +26,7 @@ runs:
       shell: bash
       run: |
         sudo apt-get update --allow-releaseinfo-change
-        sudo apt-get install -y wget build-essential python make g++ awscli git mecab libmecab-dev mecab-ipadic mecab-ipadic-utf8 libjemalloc2 pkg-config
+        sudo apt-get install -y wget build-essential make g++ awscli git mecab libmecab-dev mecab-ipadic mecab-ipadic-utf8 libjemalloc2 pkg-config
     - name: Install freetds
       env:
         FREETDS_VERSION: ${{ inputs.freetds-version }}
@@ -39,7 +39,7 @@ runs:
           wget http://www.freetds.org/files/stable/freetds-${FREETDS_VERSION}.tar.gz
           tar -xzf freetds-${FREETDS_VERSION}.tar.gz
           cd freetds-${FREETDS_VERSION}
-          sudo ./configure --with-tdsver=7.4
+          sudo ./configure --prefix=/usr/local --with-tdsver=7.4
           sudo make
           cd ..
         fi
