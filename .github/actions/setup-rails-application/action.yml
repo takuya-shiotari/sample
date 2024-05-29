@@ -39,8 +39,8 @@ runs:
         #sudo make
         #sudo make install
         cat /etc/ssl/openssl.cnf
-        sudo sed -i -e "s/\(^MinProtocol = \).*/\1None/" /etc/ssl/openssl.cnf
-        sudo sed -i -e "s/\(^CipherString = \).*/\1DEFAULT/" /etc/ssl/openssl.cnf
+        sed -i -e "s/\(^CipherString = \).*/\1DEFAULT/" /etc/ssl/openssl.cnf
+        echo "MinProtocol = None" | sudo tee -a openssl.cnf
 
         cd ~/
         if [ ! -d "freetds-${FREETDS_VERSION}" ]; then
