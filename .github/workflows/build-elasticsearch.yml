@@ -34,7 +34,7 @@ jobs:
         id: docker-image-tag-exists
         with:
           registry: ${{ vars.ECR_REGISTRY }}
-          repository: ${{ vars.ECR_REPOSITORY }}
+          respository: ${{ vars.ECR_REPOSITORY }}
           tag: ${{ steps.elasticsearch-container.output.hash }}
       - uses: docker/setup-buildx-action@v3
         if: ${{ steps.docker-image-tag-exists.output.tag == 'not found' }}
