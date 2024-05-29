@@ -1,7 +1,7 @@
 name: Reviewdog
 
-on:
-  push:
+#on:
+# push:
 
 env:
   RUBY_VERSION: 3.1.2

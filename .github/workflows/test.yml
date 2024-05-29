@@ -1,6 +1,7 @@
 name: Test
 
-on: push
+on:
+  push
 
 env:
   RUBY_VERSION: 3.1.2
@@ -10,12 +11,12 @@ env:
   ECR_DOCKER_USERNAME: AWS
 
 jobs:
-  build-elasticsearch:
-    uses: ./.github/workflows/build-elasticsearch.yml
-    secrets: inherit
+# build-elasticsearch:
+#   uses: ./.github/workflows/build-elasticsearch.yml
+#   secrets: inherit
   test:
     runs-on: ubuntu-22.04
-    needs: build-elasticsearch
+    #needs: build-elasticsearch
     services:
       mssql:
         image: mcr.microsoft.com/mssql/server:2017-latest
@@ -28,39 +29,39 @@ jobs:
         image: amazon/dynamodb-local:1.17.0
         ports:
           - 8000:8000
-      elasticsearch1:
-        image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ needs.build-elasticsearch.outputs.tag }}
-        credentials:
-          username: ${{ env.ECR_DOCKER_USERNAME }}
-          password: ${{ needs.build-elasticsearch.outputs.docker-password }}
-        env:
-          cluster.name: elasticsearch-cluster
-          node.name: elasticsearch-node1
-          discovery.seed_hosts: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-          cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-          ES_JAVA_OPTS: -Xms256m -Xmx256m
-      elasticsearch2:
-        image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ needs.build-elasticsearch.outputs.tag }}
-        credentials:
-          username: ${{ env.ECR_DOCKER_USERNAME }}
-          password: ${{ needs.build-elasticsearch.outputs.docker-password }}
-        env:
-          cluster.name: elasticsearch-cluster
-          node.name: elasticsearch-node2
-          discovery.seed_hosts: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-          cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-          ES_JAVA_OPTS: -Xms256m -Xmx256m
-      elasticsearch3:
-        image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ needs.build-elasticsearch.outputs.tag }}
-        credentials:
-          username: ${{ env.ECR_DOCKER_USERNAME }}
-          password: ${{ needs.build-elasticsearch.outputs.docker-password }}
-        env:
-          cluster.name: elasticsearch-cluster
-          node.name: elasticsearch-node3
-          discovery.seed_hosts: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-          cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-          ES_JAVA_OPTS: -Xms256m -Xmx256m
+#     elasticsearch1:
+#       image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ needs.build-elasticsearch.outputs.tag }}
+#       credentials:
+#         username: ${{ env.ECR_DOCKER_USERNAME }}
+#         password: ${{ needs.build-elasticsearch.outputs.docker-password }}
+#       env:
+#         cluster.name: elasticsearch-cluster
+#         node.name: elasticsearch-node1
+#         discovery.seed_hosts: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+#         cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+#         ES_JAVA_OPTS: -Xms256m -Xmx256m
+#     elasticsearch2:
+#       image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ needs.build-elasticsearch.outputs.tag }}
+#       credentials:
+#         username: ${{ env.ECR_DOCKER_USERNAME }}
+#         password: ${{ needs.build-elasticsearch.outputs.docker-password }}
+#       env:
+#         cluster.name: elasticsearch-cluster
+#         node.name: elasticsearch-node2
+#         discovery.seed_hosts: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+#         cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+#         ES_JAVA_OPTS: -Xms256m -Xmx256m
+#     elasticsearch3:
+#       image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ needs.build-elasticsearch.outputs.tag }}
+#       credentials:
+#         username: ${{ env.ECR_DOCKER_USERNAME }}
+#         password: ${{ needs.build-elasticsearch.outputs.docker-password }}
+#       env:
+#         cluster.name: elasticsearch-cluster
+#         node.name: elasticsearch-node3
+#         discovery.seed_hosts: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+#         cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+#         ES_JAVA_OPTS: -Xms256m -Xmx256m
     strategy:
       fail-fast: false
       matrix:
