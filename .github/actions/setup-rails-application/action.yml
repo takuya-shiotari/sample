@@ -61,4 +61,5 @@ runs:
         path: node_modules
         key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
     - name: Install dpendencies
+      shell: bash
       run: npm ci
