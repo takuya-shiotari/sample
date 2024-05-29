@@ -15,32 +15,44 @@ jobs:
       - uses: actions/checkout@v4.1.0
         with:
           fetch-depth: 0
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ vars.ECR_REGISTRY }}
-      - name: Build and push API
-        uses: docker/build-push-action@v5
-        with:
-          push: true
-          provenance: false
-          context: containers/elasticsearch
-          tags: ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
         with:
           mask-password: 'false'
+      - uses: theowenyoung/folder-hash@v3
+        id: elasticsearch-container
+        with:
+          path: |
+            containers/elasticsearch
+      - uses: tyriis/docker-image-tag-exists@v2.0.0
+        id: docker-image-tag-exists
+        with:
+          registry: ${{ vars.ECR_REGISTRY }}
+          repository: ${{ vars.ECR_REPOSITORY }}
+          tag: ${{ steps.elasticsearch-container.output.hash }}
+      - uses: docker/setup-buildx-action@v3
+        if: ${{ steps.docker-image-tag-exists.output.tag == 'not found' }}
+      - uses: docker/login-action@v3
+        if: ${{ steps.docker-image-tag-exists.output.tag == 'not found' }}
+        with:
+          registry: ${{ vars.ECR_REGISTRY }}
+      - uses: docker/build-push-action@v5
+        if: ${{ steps.docker-image-tag-exists.output.tag == 'not found' }}
+        with:
+          push: true
+          provenance: false
+          context: containers/elasticsearch
+          tags: ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:${{ steps.elasticsearch-container.output.hash }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
     outputs:
       registry: ${{ steps.login-ecr.outputs.registry }}
       # docker_password: ${{ format('steps.login-ecr.outputs.docker_password_{0}_dkr_ecr_{1}_amazonaws_com', vars.AWS_ACCOUNT_ID, vars.AWS_REGION_UNDERSCORE) }}
       docker-password: ${{ steps.login-ecr.outputs.docker_password_321055706437_dkr_ecr_ap_northeast_1_amazonaws_com }}
+      image-tag: ${{ steps.elasticsearch-container.output.hash }}
