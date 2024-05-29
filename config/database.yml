@@ -11,7 +11,7 @@ default: &default
   port: 1433
   username: <%= ENV.fetch('DB_USER', '') %>
   password: <%= ENV.fetch('DB_PASSWORD', 'password') %>
-  tds_version: 7.0
+  tds_version: 7.4
   timeout: 15000
   login_timeout: 3000
 
