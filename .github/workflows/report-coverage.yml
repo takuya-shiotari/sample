@@ -49,4 +49,4 @@ jobs:
           unzip artifact.zip -d coverage
       - name: Coverage Report by octocov
         uses: k1LoW/octocov-action@v1
-        if: ${{ steps.download_coverage.outputs.skip_octocov != 'true' }}
+        if: steps.download_coverage.outputs.skip_octocov != 'true'

@@ -40,15 +40,15 @@ jobs:
           tag: ${{ steps.elasticsearch-container.outputs.hash }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        if: ${{ steps.docker-image-tag-exists.outputs.tag == 'not found' }}
+        if: steps.docker-image-tag-exists.outputs.tag == 'not found'
       - name: Login to Docker Hub
         uses: docker/login-action@v3
-        if: ${{ steps.docker-image-tag-exists.outputs.tag == 'not found' }}
+        if: steps.docker-image-tag-exists.outputs.tag == 'not found'
         with:
           registry: ${{ vars.ECR_REGISTRY }}
       - name: Build and push API
         uses: docker/build-push-action@v5
-        if: ${{ steps.docker-image-tag-exists.outputs.tag == 'not found' }}
+        if: steps.docker-image-tag-exists.outputs.tag == 'not found'
         with:
           push: true
           provenance: false
