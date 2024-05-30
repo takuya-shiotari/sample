@@ -45,9 +45,9 @@ runs:
         fi
         cd freetds-${FREETDS_VERSION}
         sudo make install
-        sudo sed -i -e "s/\(^CipherString = \).*/\1DEFAULT@SECLEVEL=0/" /etc/ssl/openssl.cnf
-        #echo "MinProtocol = None" | sudo tee -a /etc/ssl/openssl.cnf
-        echo "MinProtocol  = TLSv1" | sudo tee -a /etc/ssl/openssl.cnf
+        sudo sed -i -e "s/\(^CipherString = \).*/\1DEFAULT/" /etc/ssl/openssl.cnf
+        echo "MinProtocol = None" | sudo tee -a /etc/ssl/openssl.cnf
+        # echo "MinProtocol  = TLSv1" | sudo tee -a /etc/ssl/openssl.cnf
         echo "Options = UnsafeLegacyRenegotiation" | sudo tee -a /etc/ssl/openssl.cnf
         cat /etc/ssl/openssl.cnf
     - name: Setup Ruby
