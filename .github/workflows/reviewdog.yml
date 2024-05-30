@@ -1,7 +1,6 @@
 name: Reviewdog
 
 on:
-  push:
   pull_request:
 
 concurrency:
