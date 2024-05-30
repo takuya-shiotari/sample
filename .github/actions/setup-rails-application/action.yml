@@ -20,7 +20,7 @@ runs:
     - name: Cache freetds
       uses: actions/cache@v4
       with:
-        path: /usr/local/src/freetds-${{ inputs.freetds-version }}
+        path: /tmp/freetds-${{ inputs.freetds-version }}
         key: ${{ runner.os }}-freetds-${{ inputs.freetds-version }}
     - name: Install packages
       uses: awalsh128/cache-apt-pkgs-action@latest
@@ -31,11 +31,11 @@ runs:
       env:
         FREETDS_VERSION: ${{ inputs.freetds-version }}
       shell: bash
-      working-directory: /usr/local/src
+      working-directory: /tmp
       run: |
         if [ ! -d "freetds-${FREETDS_VERSION}" ]; then
-          sudo wget http://www.freetds.org/files/stable/freetds-${FREETDS_VERSION}.tar.gz
-          sudo tar -xzf freetds-${FREETDS_VERSION}.tar.gz
+          wget http://www.freetds.org/files/stable/freetds-${FREETDS_VERSION}.tar.gz
+          tar -xzf freetds-${FREETDS_VERSION}.tar.gz
           cd freetds-${FREETDS_VERSION}
           sudo ./configure --prefix=/usr/local --with-tdsver=7.4
           sudo make
