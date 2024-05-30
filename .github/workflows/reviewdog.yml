@@ -34,7 +34,6 @@ jobs:
         if: always()
         run: |
           files=$(git diff --name-only --diff-filter=ACMR origin/main -- 'app/**/*.scss')
-          echo $files
           echo "files=${files}" >> $GITHUB_OUTPUT
       - uses: reviewdog/action-stylelint@v1
         if: ${{ steps.filter-changed-scss.outputs.files != '' }}
