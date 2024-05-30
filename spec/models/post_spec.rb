@@ -50,7 +50,7 @@ RSpec.describe Post do
   end
 
   describe '#fuga' do
-    it 'returns foo' do
+    it 'returns fuga' do
       post = Post.new(title: 'title', body: 'body')
       expect(post.fuga).to eq 'fuga'
     end
