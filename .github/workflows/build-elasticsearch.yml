@@ -32,7 +32,7 @@ jobs:
         with:
           path: |
             containers/elasticsearch
-      - uses: tyriis/docker-image-tag-exists@v2
+      - uses: tyriis/docker-image-tag-exists@v2.0.0
         id: docker-image-tag-exists
         with:
           registry: ${{ vars.ECR_REGISTRY }}
