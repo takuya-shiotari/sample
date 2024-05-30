@@ -3,6 +3,6 @@ namespace :coverage do
   task :report, %w[pattern] do |_task, args|
     require 'simplecov'
 
-    SimpleCov.collate Dir[args.pattern]
+    SimpleCov.collate Dir[args.pattern], 'rails'
   end
 end
