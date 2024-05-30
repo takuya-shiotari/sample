@@ -88,6 +88,11 @@ jobs:
           PARALLEL_TESTS_CONCURRENCY: ${{ matrix.ci_node_total }}
           CONCURRENCY_INDEX: ${{ matrix.ci_node_index }}
         run: |
+          echo '----------------------'
+          cat /etc/ssl/openssl.cnf
+          echo '----------------------'
+          cat /etc/freetds/freetds.conf
+          echo '----------------------'
           bundle exec rails "parallel:setup[2]"
           bundle exec parallel_rspec -n $PARALLEL_TESTS_CONCURRENCY --only-group $CONCURRENCY_INDEX
       - name: Archive code coverage results
