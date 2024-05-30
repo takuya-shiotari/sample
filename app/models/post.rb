@@ -29,6 +29,6 @@ class Post < ApplicationRecord
   end
 
   def fuga
-    'fuga'
+    'fuga2'
   end
 end
