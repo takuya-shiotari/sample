@@ -3,7 +3,6 @@ name: Test
 on: push
 
 env:
-  RUBY_VERSION: 3.1.2
   DB_HOST: 127.0.0.1
   DB_USER: sa
   DB_PASSWORD: "yourStrong(!)Password"
@@ -88,9 +87,6 @@ jobs:
           PARALLEL_TESTS_CONCURRENCY: ${{ matrix.ci_node_total }}
           CONCURRENCY_INDEX: ${{ matrix.ci_node_index }}
         run: |
-          openssl version -a
-          tsql -C || true
-          TDSVER=7.4 tsql -H 127.0.0.1 -p 1433 -U sa -P ${DB_PASSWORD} || true
           bundle exec rails "parallel:setup[2]"
           bundle exec parallel_rspec -n $PARALLEL_TESTS_CONCURRENCY --only-group $CONCURRENCY_INDEX
       - name: Archive code coverage results
