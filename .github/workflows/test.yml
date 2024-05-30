@@ -132,6 +132,7 @@ jobs:
   report-coverage:
     needs: merge-coverage
     runs-on: ubuntu-latest
+    if: always()
     steps:
       - uses: actions/checkout@v4.1.0
         with:
