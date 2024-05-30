@@ -25,7 +25,7 @@ class Post < ApplicationRecord
   end
 
   def foo
-    'foo'
+    '2foo'
   end
 
   def fuga
