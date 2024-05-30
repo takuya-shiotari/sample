@@ -23,10 +23,10 @@ runs:
         path: ~/freetds-${{ inputs.freetds-version }}
         key: ${{ runner.os }}-freetds
     - name: Install packages
-      shell: bash
-      run: |
-        sudo apt-get update --allow-releaseinfo-change
-        sudo apt-get install -y curl wget build-essential awscli git mecab libmecab-dev mecab-ipadic mecab-ipadic-utf8 libjemalloc2 pkg-config
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: curl wget build-essential awscli git mecab libmecab-dev mecab-ipadic mecab-ipadic-utf8 libjemalloc2 pkg-config freetds-dev
+        version: 1.0
     - name: Install freetds
       env:
         FREETDS_VERSION: ${{ inputs.freetds-version }}
@@ -34,8 +34,6 @@ runs:
       run: |
         cd ~/
         if [ ! -d "freetds-${FREETDS_VERSION}" ]; then
-          sudo apt-get update --allow-releaseinfo-change
-          sudo apt-get install -y freetds-dev
           wget http://www.freetds.org/files/stable/freetds-${FREETDS_VERSION}.tar.gz
           tar -xzf freetds-${FREETDS_VERSION}.tar.gz
           cd freetds-${FREETDS_VERSION}
