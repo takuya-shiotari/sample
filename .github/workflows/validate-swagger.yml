@@ -3,6 +3,10 @@ name: Validate swagger
 on:
   push
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate-swagger-files:
     runs-on: ubuntu-20.04

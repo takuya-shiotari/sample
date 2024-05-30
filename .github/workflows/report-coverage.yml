@@ -4,6 +4,10 @@ on:
   pull_request:
     types: opened
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   report:
     runs-on: ubuntu-20.04
