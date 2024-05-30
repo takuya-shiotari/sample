@@ -89,6 +89,7 @@ jobs:
           CONCURRENCY_INDEX: ${{ matrix.ci_node_index }}
         run: |
           sudo cp ./openssl.cnf /etc/ssl/openssl.cnf
+          openssl version -a
           tsql -C || true
           TDSVER=7.4 tsql -H 127.0.0.1 -p 1433 -U sa -P ${DB_PASSWORD} || true
           bundle exec rails "parallel:setup[2]"
