@@ -353,7 +353,11 @@ ess_cert_id_alg         = sha1  # algorithm to compute certificate
                                 # identifier (optional, default: sha1)
 
 [default_conf]
+providers = provider_sect
 ssl_conf = ssl_sect
+
+[provider_sect]
+legacy = legacy_sect
 
 [ssl_sect]
 system_default = system_default_sect
@@ -361,3 +365,7 @@ system_default = system_default_sect
 [system_default_sect]
 MinProtocol = None
 CipherString = DEFAULT
+Options = UnsafeLegacyRenegotiation
+
+[legacy_sect]
+activate = 1
