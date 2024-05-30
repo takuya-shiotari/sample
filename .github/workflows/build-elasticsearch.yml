@@ -14,7 +14,7 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v4.1.0
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: aws-actions/configure-aws-credentials@v4
@@ -26,13 +26,13 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
         with:
-          mask-password: 'false'
+          mask-password: "false"
       - uses: theowenyoung/folder-hash@v3
         id: elasticsearch-container
         with:
           path: |
             containers/elasticsearch
-      - uses: tyriis/docker-image-tag-exists@v2.0.0
+      - uses: tyriis/docker-image-tag-exists@v2
         id: docker-image-tag-exists
         with:
           registry: ${{ vars.ECR_REGISTRY }}
