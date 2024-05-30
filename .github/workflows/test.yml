@@ -14,7 +14,7 @@ jobs:
   #   uses: ./.github/workflows/build-elasticsearch.yml
   #   secrets: inherit
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     #needs: build-elasticsearch
     services:
       mssql:
@@ -88,7 +88,6 @@ jobs:
           PARALLEL_TESTS_CONCURRENCY: ${{ matrix.ci_node_total }}
           CONCURRENCY_INDEX: ${{ matrix.ci_node_index }}
         run: |
-          sudo cp ./openssl.cnf /etc/ssl/openssl.cnf
           openssl version -a
           tsql -C || true
           TDSVER=7.4 tsql -H 127.0.0.1 -p 1433 -U sa -P ${DB_PASSWORD} || true
