@@ -163,8 +163,8 @@ jobs:
       - name: Build GitHub Pages
         run: |
           mkdir -p github_pages_artifact/swagger-ui/
-          cp -n swagger-ui/dist/* github_pages_artifact/swagger-ui/
-          cp -n main/docs/dist/swagger-ui github_pages_artifact/swagger-ui/
+          cp swagger-ui/dist/* github_pages_artifact/swagger-ui/
+          cp main/docs/dist/swagger-ui/* github_pages_artifact/swagger-ui/
           cp -r coverage github_pages_artifact/
       - name: Upload page artifact
         uses: actions/upload-pages-artifact@v3
