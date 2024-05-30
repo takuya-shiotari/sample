@@ -88,9 +88,7 @@ jobs:
           PARALLEL_TESTS_CONCURRENCY: ${{ matrix.ci_node_total }}
           CONCURRENCY_INDEX: ${{ matrix.ci_node_index }}
         run: |
-          # sudo sed -i -e "s/# openssl ciphers = HIGH:\!SSLv2:\!aNULL:-DH/openssl ciphers = HIGH:MEDIUM/" /usr/local/etc/freetds.conf
-          # sudo sed -i -e "s/# openssl ciphers = HIGH:\!SSLv2:\!aNULL:-DH/enable tls v1 = True/" /usr/local/etc/freetds.conf
-          bundle exec rails "parallel:setup[2]" || true
+          bundle exec rails "parallel:setup[2]"
           bundle exec parallel_rspec -n $PARALLEL_TESTS_CONCURRENCY --only-group $CONCURRENCY_INDEX
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
@@ -102,7 +100,7 @@ jobs:
 
   merge-coverage:
     needs: test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
