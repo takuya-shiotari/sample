@@ -11,12 +11,6 @@ jobs:
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup-rails-application
-      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
-        name: List the state of node modules
-        continue-on-error: true
-        run: npm list
-      - name: Install dependencies
-        run: npm install
       - uses: reviewdog/action-rubocop@v2
         with:
           reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
@@ -31,14 +25,14 @@ jobs:
           eslint_flags: $(git diff --name-only --diff-filter=ACMR origin/main -- 'app/**/*.js')
           reviewdog_flags: -diff="git diff origin/main app/**/*.js"
           fail_on_error: true
-      - name: Filter cached scss
-        id: filter-cached-scss
+      - name: Filter changed scss
+        id: filter-changed-scss
         if: always()
         run: |
           files=$(git diff --name-only --diff-filter=ACMR origin/main -- 'app/**/*.scss')
           echo "files=${files}" >> $GITHUB_OUTPUT
       - uses: reviewdog/action-stylelint@v1
-        if: ${{ steps.filter-cached-scss.outputs.files != '' }}
+        if: ${{ steps.filter-changed-scss.outputs.files != '' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}

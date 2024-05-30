@@ -1,6 +1,7 @@
 name: Test
 
-on: push
+on:
+  push
 
 env:
   DB_HOST: 127.0.0.1
