@@ -36,7 +36,7 @@ jobs:
           files=$(git diff --name-only --diff-filter=ACMR origin/${{ github.event.repository.default_branch }} -- 'app/**/*.scss')
           echo "files=${files}" >> $GITHUB_OUTPUT
       - uses: reviewdog/action-stylelint@v1
-        if: steps.filter-changed-scss.outputs.files != ''
+        if: always() && steps.filter-changed-scss.outputs.files != ''
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: ${{ github.event_name == 'pull_request' && 'github-pr-review' || 'github-check' }}
