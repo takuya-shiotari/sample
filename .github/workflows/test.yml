@@ -16,6 +16,9 @@ jobs:
   build-elasticsearch:
     uses: ./.github/workflows/build-elasticsearch.yml
     secrets: inherit
+    permissions:
+      id-token: write
+      contents: read
   test:
     runs-on: ubuntu-20.04
     needs: build-elasticsearch
