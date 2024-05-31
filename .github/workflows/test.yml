@@ -103,7 +103,7 @@ jobs:
       - name: Run rspec only failures
         run: bundle exec rspec --only-failures
 
-  merge-coverage:
+  report-coverage:
     needs: test
     runs-on: ubuntu-20.04
     if: always()
@@ -124,27 +124,13 @@ jobs:
       - uses: ./.github/actions/setup-rails-application
       - name: Collates all result sets
         run: bundle exec rails "coverage:report[/tmp/coverage/.resultset-*.json]"
+      - name: Coverage Report by octocov
+        uses: k1LoW/octocov-action@v1
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: coverage
-
-  report-coverage:
-    needs: merge-coverage
-    runs-on: ubuntu-20.04
-    if: always()
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Download coverage artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage
-          path: coverage
-      - name: Coverage Report by octocov
-        uses: k1LoW/octocov-action@v1
 
   build-github-pages:
     needs: merge-coverage
