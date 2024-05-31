@@ -33,4 +33,8 @@ class Post < ApplicationRecord
   def fuga
     'fuga'
   end
+
+  def hoge
+  'hoge'
+  end
 end
