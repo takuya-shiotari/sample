@@ -9,7 +9,6 @@ concurrency:
 
 env:
   DB_PASSWORD: yourStrong(!)Password
-  ECR_DOCKER_USERNAME: AWS
   SWAGGER_UI_VERSION: v4.15.5
 
 jobs:
@@ -35,10 +34,10 @@ jobs:
         ports:
           - 8000:8000
       elasticsearch-node1:
-        image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ needs.build-elasticsearch.outputs.tag }}
+        image: ${{ needs.build-elasticsearch.outputs.image }}
         credentials:
-          username: ${{ env.ECR_DOCKER_USERNAME }}
-          password: ${{ needs.build-elasticsearch.outputs.docker-password }}
+          username: ${{ needs.build-elasticsearch.outputs.username }}
+          password: ${{ needs.build-elasticsearch.outputs.password }}
         env:
           cluster.name: elasticsearch-cluster
           node.name: elasticsearch-node1
@@ -49,10 +48,10 @@ jobs:
           - 9200:9200
           - 9600:9600
       elasticsearch-node2:
-        image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ needs.build-elasticsearch.outputs.tag }}
+        image: ${{ needs.build-elasticsearch.outputs.image }}
         credentials:
-          username: ${{ env.ECR_DOCKER_USERNAME }}
-          password: ${{ needs.build-elasticsearch.outputs.docker-password }}
+          username: ${{ needs.build-elasticsearch.outputs.username }}
+          password: ${{ needs.build-elasticsearch.outputs.password }}
         env:
           cluster.name: elasticsearch-cluster
           node.name: elasticsearch-node2
@@ -60,10 +59,10 @@ jobs:
           cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
           ES_JAVA_OPTS: -Xms256m -Xmx256m
       elasticsearch-node3:
-        image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ needs.build-elasticsearch.outputs.tag }}
+        image: ${{ needs.build-elasticsearch.outputs.image }}
         credentials:
-          username: ${{ env.ECR_DOCKER_USERNAME }}
-          password: ${{ needs.build-elasticsearch.outputs.docker-password }}
+          username: ${{ needs.build-elasticsearch.outputs.username }}
+          password: ${{ needs.build-elasticsearch.outputs.password }}
         env:
           cluster.name: elasticsearch-cluster
           node.name: elasticsearch-node3
