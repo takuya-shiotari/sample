@@ -42,6 +42,13 @@ RSpec.describe Post do
     end
   end
 
+  describe '#sub_title' do
+    it 'returns sub_title' do
+      post = Post.new(title: 'title', body: 'body')
+      expect(post.sub_title).to eq 'sub_title'
+    end
+  end
+
   describe '#foo' do
     it 'returns foo' do
       post = Post.new(title: 'title', body: 'body')
