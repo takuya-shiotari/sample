@@ -28,7 +28,7 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             "/repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${{ github.event.pull_request.head.sha }}&event=push" | \
-            jq '.workflow_runs[] | select(.name == "${{ env.TEST_WORKFLOW_NAME }}") | .id'
+            jq '.workflow_runs[] | select(.name == "${{ env.TEST_WORKFLOW_NAME }}") | .id'`
           if [ -z $RUN_ID ] || [ $RUN_ID = 'null' ]; then
             echo "skip_octocov=true" >> $GITHUB_OUTPUT
             exit 0
