@@ -26,7 +26,7 @@ jobs:
           use_bundler: true
           fail_on_error: true
       - uses: reviewdog/action-eslint@v1
-        if: always()
+        if: success() || failure()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
@@ -35,12 +35,12 @@ jobs:
           fail_on_error: true
       - name: Filter changed scss
         id: filter-changed-scss
-        if: always()
+        if: success() || failure()
         run: |
           files=$(git diff --name-only --diff-filter=ACMR origin/${{ github.event.repository.default_branch }} -- 'app/**/*.scss')
           echo "files=${files}" >> $GITHUB_OUTPUT
       - uses: reviewdog/action-stylelint@v1
-        if: always() && steps.filter-changed-scss.outputs.files != ''
+        if: (success() || failure()) && steps.filter-changed-scss.outputs.files != ''
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
