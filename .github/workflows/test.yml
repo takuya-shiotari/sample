@@ -3,14 +3,14 @@ name: Test
 on:
   push:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   DB_PASSWORD: yourStrong(!)Password
   ECR_DOCKER_USERNAME: AWS
   SWAGGER_UI_VERSION: v4.15.5
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build-elasticsearch:
