@@ -35,6 +35,6 @@ class Post < ApplicationRecord
   end
 
   def hoge
-  'hoge'
+    'hoge'
   end
 end
