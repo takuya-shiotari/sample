@@ -26,6 +26,10 @@ class Post < ApplicationRecord
     title.presence || 'No title'
   end
 
+  def sub_title
+    'sub_title'
+  end
+
   def foo
     'foo'
   end
