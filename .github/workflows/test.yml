@@ -42,6 +42,9 @@ jobs:
           discovery.seed_hosts: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
           cluster.initial_master_nodes: elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
           ES_JAVA_OPTS: -Xms256m -Xmx256m
+        ports:
+          - 9200:9200
+          - 9600:9600
       elasticsearch2:
         image: ${{ needs.build-elasticsearch.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ needs.build-elasticsearch.outputs.tag }}
         credentials:
