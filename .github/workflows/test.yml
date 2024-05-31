@@ -86,7 +86,7 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-          ssh-key: ${{ secrets.PRIVATE_REPO_SSH_KEY }}
+          token: ${{ secrets.CI_USER_GITHUB_TOKEN }}
       - uses: ./.github/actions/setup-rails-application
       - name: Run rspec
         env:
