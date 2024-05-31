@@ -133,7 +133,7 @@ jobs:
           path: coverage
 
   build-github-pages:
-    needs: merge-coverage
+    needs: report-coverage
     runs-on: ubuntu-20.04
     if: format('refs/heads/{0}', github.event.repository.default_branch) == github.ref
     steps:
