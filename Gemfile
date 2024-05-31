@@ -42,8 +42,11 @@ gem 'google-protobuf', '3.19.4'
 
 gem 'parallel'
 
+gem 'aws-sdk-dynamodb', '1.85.0'
 gem 'aws-sdk-rails', '3.6.1'
 gem 'aws-sdk-s3', '1.140.0'
+
+gem 'dynamoid', '3.7.1'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

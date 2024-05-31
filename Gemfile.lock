@@ -71,8 +71,8 @@ GEM
       aws-partitions (~> 1, >= 1.651.0)
       aws-sigv4 (~> 1.8)
       jmespath (~> 1, >= 1.6.1)
-    aws-sdk-dynamodb (1.109.0)
-      aws-sdk-core (~> 3, >= 3.193.0)
+    aws-sdk-dynamodb (1.85.0)
+      aws-sdk-core (~> 3, >= 3.174.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-kms (1.81.0)
       aws-sdk-core (~> 3, >= 3.193.0)
@@ -129,6 +129,10 @@ GEM
     docile (1.3.4)
     dogstatsd-ruby (5.5.0)
     dotenv (3.1.2)
+    dynamoid (3.7.1)
+      activemodel (>= 4)
+      aws-sdk-dynamodb (~> 1.0)
+      concurrent-ruby (>= 1.0)
     elasticsearch (7.13.3)
       elasticsearch-api (= 7.13.3)
       elasticsearch-transport (= 7.13.3)
@@ -398,6 +402,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord-sqlserver-adapter (= 6.0.0)
+  aws-sdk-dynamodb (= 1.85.0)
   aws-sdk-rails (= 3.6.1)
   aws-sdk-s3 (= 1.140.0)
   bootsnap (>= 1.4.2)
@@ -406,6 +411,7 @@ DEPENDENCIES
   ddtrace (= 1.4.0)
   dogstatsd-ruby (= 5.5.0)
   dotenv
+  dynamoid (= 3.7.1)
   elasticsearch (= 7.13.3)
   elasticsearch-dsl (= 0.1.10)
   elasticsearch-model (= 7.2.1)
