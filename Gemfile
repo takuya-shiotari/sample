@@ -48,38 +48,42 @@ gem 'aws-sdk-s3', '1.140.0'
 
 gem 'dynamoid', '3.7.1'
 
-group :development, :test do
-  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug', platforms: %i[mri mingw x64_mingw]
-  gem 'parallel_tests'
-  gem 'pry-byebug'
-  gem 'pry-rails'
-  gem 'simplecov'
-end
-
 gem 'natto'
 
+gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
+
+group :development, :test do
+  gem 'bullet'
+  gem 'pry-rails'
+  gem 'pry-byebug'
+  gem 'rspec-rails'
+  gem 'simplecov', require: false
+  gem 'rspec-json_expectations'
+  gem 'parallel_tests'
+end
+
 group :development do
-  gem 'dotenv', require: 'dotenv/load'
-  # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
-  gem 'listen', '~> 3.2'
   gem 'web-console', '>= 3.3.0'
-  # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
+  gem 'listen', '>= 3.0.5', '< 3.9'
+  gem 'pre-commit', require: false
   gem 'rubocop', require: false
+  gem 'rubocop-rails', require: false
+  gem 'rubocop-rspec', require: false
+  gem 'rubocop-performance', require: false
+  gem 'slim_lint', require: false
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
+  gem 'heavens_door'
 end
 
 group :test do
-  # Adds support for Capybara system testing and selenium driver
-  gem 'capybara', '>= 2.15'
-  gem 'selenium-webdriver'
-  # Easy installation and use of web drivers to run system tests with browsers
+  gem 'arproxy'
+  gem 'capybara', '~> 3.39.2'
+  gem 'cuprite'
+  gem 'database_cleaner'
+  gem 'factory_bot_rails', require: false
+  gem 'faker'
+  gem 'rack_session_access'
   gem 'rspec_junit_formatter'
-  gem 'webdrivers'
+  gem 'selenium-webdriver'
 end
-
-# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
-
-gem 'rspec-rails', '~> 5.1', groups: %i[development test]
