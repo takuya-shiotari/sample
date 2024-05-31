@@ -110,7 +110,7 @@ jobs:
     runs-on: ubuntu-20.04
     permissions:
       pull-requests: write
-    if: always()
+    if: success() && failure()
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
