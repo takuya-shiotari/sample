@@ -4,8 +4,6 @@ on:
   push:
 
 env:
-  DB_HOST: 127.0.0.1
-  DB_USER: sa
   DB_PASSWORD: yourStrong(!)Password
   ECR_DOCKER_USERNAME: AWS
   SWAGGER_UI_VERSION: v4.15.5

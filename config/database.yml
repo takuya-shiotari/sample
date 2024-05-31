@@ -9,7 +9,7 @@ default: &default
   encoding: utf8
   host: <%= ENV.fetch('DB_HOST', '127.0.0.1') %>
   port: 1433
-  username: <%= ENV.fetch('DB_USER', '') %>
+  username: <%= ENV.fetch('DB_USER', 'sa') %>
   password: <%= ENV.fetch('DB_PASSWORD', 'password') %>
   tds_version: 7.4
   timeout: 15000

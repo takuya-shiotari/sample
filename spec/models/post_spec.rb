@@ -48,4 +48,28 @@ RSpec.describe Post do
       expect(post.foo).to eq 'foo'
     end
   end
+
+  describe '#elasticserch' do
+    after do
+      Post.__elasticsearch__.delete_index!
+    end
+
+    let!(:post1) { Post.create(title: 'title1', body: 'body1') }
+    let!(:post2) { Post.create(title: 'title2', body: 'body2') }
+
+    before do
+      Post.__elasticsearch__.create_index!
+      Post.import(refresh: true)
+    end
+
+    it 'test1' do
+      expect(Post.search({}).count).to eq(2)
+    end
+
+    it 'test2' do
+      records = Post.search(sort: [{id: :desc}]).records
+      expect(records[0].id).to eq(post2.id)
+      expect(records[1].id).to eq(post1.id)
+    end
+  end
 end

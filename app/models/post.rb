@@ -1,6 +1,8 @@
 class Post < ApplicationRecord
   include Elasticsearch::Model
 
+  index_name "posts_#{Rails.env}#{ENV['TEST_ENV_NUMBER']}"
+
   validates :title, presence: true
   validates :body, presence: true
 
