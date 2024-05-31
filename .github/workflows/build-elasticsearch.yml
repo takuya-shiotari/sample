@@ -11,14 +11,17 @@ on:
         value: ${{ jobs.build.outputs.password }}
 
 env:
+  AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  ASSUME_ROLE: ${{ vars.OIDC_ROLE_ARN_STG }}
+  ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
   ECR_DOCKER_USERNAME: AWS
 
 jobs:
   build:
     runs-on: ubuntu-20.04
     env:
-      ECR_REGISTRY: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
-      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+      ECR_REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,13 +29,13 @@ jobs:
       - uses: andac-ozcan/actions-find-and-replace-string@3
         id: aws-region-underscore
         with:
-          source: ${{ vars.AWS_REGION }}
+          source: ${{ env.AWS_REGION }}
           find: '-'
           replace: '_'
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: ${{ vars.AWS_REGION }}
-          role-to-assume: ${{ vars.OIDC_ROLE_ARN_STG }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.ASSUME_ROLE }}
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -70,4 +73,4 @@ jobs:
     outputs:
       image: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ steps.elasticsearch-container.outputs.hash }}
       username: ${{ env.ECR_DOCKER_USERNAME }}
-      password: ${{ steps.login-ecr.outputs[format('docker_password_{0}_dkr_ecr_{1}_amazonaws_com', vars.AWS_ACCOUNT_ID, steps.aws-region-underscore.outputs.value)] }}
+      password: ${{ steps.login-ecr.outputs[format('docker_password_{0}_dkr_ecr_{1}_amazonaws_com', env.AWS_ACCOUNT_ID, steps.aws-region-underscore.outputs.value)] }}
