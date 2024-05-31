@@ -67,7 +67,7 @@ RSpec.describe Post do
     end
 
     it 'test2' do
-      records = Post.search(sort: [{id: :desc}]).records
+      records = Post.search(sort: [{ id: :desc }]).records
       expect(records[0].id).to eq(post2.id)
       expect(records[1].id).to eq(post1.id)
     end
