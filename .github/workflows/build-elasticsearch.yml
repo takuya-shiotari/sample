@@ -6,7 +6,7 @@ on:
       image:
         value: ${{ jobs.build.outputs.image }}
       username:
-        value: ${{ jobs.build.outputs.username }}
+        value: ${{ env.ECR_DOCKER_USERNAME }}
       password:
         value: ${{ jobs.build.outputs.password }}
   workflow_dispatch:
@@ -80,5 +80,4 @@ jobs:
           cache-to: type=gha,mode=max
     outputs:
       image: ${{ steps.ecr-info.outputs.image }}
-      username: ${{ env.ECR_DOCKER_USERNAME }}
       password: ${{ steps.login-ecr.outputs[format('docker_password_{0}_dkr_ecr_{1}_amazonaws_com', env.AWS_ACCOUNT_ID, steps.aws-region-underscore.outputs.value)] }}
