@@ -12,7 +12,6 @@ jobs:
   reviewdog:
     runs-on: ubuntu-20.04
     permissions:
-      checks: write
       contents: read
       pull-requests: write
     steps:
