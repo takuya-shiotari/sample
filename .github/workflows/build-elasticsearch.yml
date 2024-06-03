@@ -6,7 +6,7 @@ on:
       image:
         value: ${{ jobs.build.outputs.image }}
       username:
-        value: ${{ env.ECR_DOCKER_USERNAME }}
+        value: AWS
       password:
         value: ${{ jobs.build.outputs.password }}
   workflow_dispatch:
@@ -16,7 +16,6 @@ env:
   AWS_REGION: ${{ vars.AWS_REGION }}
   ASSUME_ROLE: ${{ vars.OIDC_ROLE_ARN_STG }}
   ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
-  ECR_DOCKER_USERNAME: AWS
 
 jobs:
   build:
