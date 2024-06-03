@@ -115,6 +115,8 @@ jobs:
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-*
       - name: Move generated files
         run: |
           mkdir -p /tmp/coverage
