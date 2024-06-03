@@ -3,6 +3,7 @@ name: Report coverage
 on:
   pull_request:
     types: opened
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
