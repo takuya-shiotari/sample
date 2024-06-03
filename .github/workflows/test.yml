@@ -14,11 +14,11 @@ env:
 
 jobs:
   build-elasticsearch:
-    uses: ./.github/workflows/build-elasticsearch.yml
-    secrets: inherit
     permissions:
       id-token: write
       contents: read
+    uses: ./.github/workflows/build-elasticsearch.yml
+    secrets: inherit
   test:
     runs-on: ubuntu-20.04
     needs: build-elasticsearch
