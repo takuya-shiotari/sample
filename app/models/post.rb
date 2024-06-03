@@ -27,7 +27,7 @@ class Post < ApplicationRecord
   end
 
   def sub_title
-  'sub_title'
+    'sub_title'
   end
 
   def foo
