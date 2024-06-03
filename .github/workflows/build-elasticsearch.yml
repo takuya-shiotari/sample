@@ -27,12 +27,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: andac-ozcan/actions-find-and-replace-string@3
+      - uses: mad9000/actions-find-and-replace-string@5
         id: aws-region-underscore
         with:
           source: ${{ env.AWS_REGION }}
           find: '-'
           replace: '_'
+          replaceAll: true
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
