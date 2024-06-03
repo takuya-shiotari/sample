@@ -14,7 +14,7 @@ on:
 env:
   AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
   AWS_REGION: ${{ vars.AWS_REGION }}
-  ASSUME_ROLE: ${{ vars.OIDC_ROLE_ARN_STG }}
+  AWS_ROLE_ARN: ${{ vars.OIDC_ROLE_ARN_STG }}
   ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ env.ASSUME_ROLE }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
