@@ -11,6 +11,7 @@ concurrency:
 env:
   DB_PASSWORD: yourStrong(!)Password
   SWAGGER_UI_VERSION: v4.15.5
+  BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
 
 jobs:
   build-elasticsearch:
@@ -19,8 +20,6 @@ jobs:
       contents: read
     uses: ./.github/workflows/build-elasticsearch.yml
     secrets: inherit
-  env:
-    BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
   test:
     runs-on: ubuntu-20.04
     needs: build-elasticsearch
