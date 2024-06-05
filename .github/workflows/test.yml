@@ -91,6 +91,8 @@ jobs:
           submodules: recursive
           token: ${{ secrets.CI_USER_GITHUB_TOKEN }}
       - uses: ./.github/actions/setup-rails-application
+      - name: Echo BUNDLE_ENTERPRISE__CONTRIBSYS__COM
+        run: echo "BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
       - name: Run rspec
         env:
           PARALLEL_TESTS_CONCURRENCY: ${{ matrix.ci_node_total }}
