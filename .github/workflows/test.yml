@@ -19,6 +19,8 @@ jobs:
       contents: read
     uses: ./.github/workflows/build-elasticsearch.yml
     secrets: inherit
+  env:
+    BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
   test:
     runs-on: ubuntu-20.04
     needs: build-elasticsearch
