@@ -39,7 +39,7 @@ jobs:
             ci_rspec_total = ci_node_total * ci_node_cpu_cores
             ci_node_index = ci_rspec_total.times.each_slice(ci_node_cpu_cores).map { |x| x.join(',') }
             matrix = { ci_node_total: [ci_node_total], ci_rspec_total: [ci_rspec_total], ci_node_index: ci_node_index }
-            puts 'matrix=' + JSON.dump(matrix).inspect" >> $GITHUB_OUTPUT
+            puts 'matrix=' + JSON.dump(matrix)" >> $GITHUB_OUTPUT
 
   test:
     runs-on: ubuntu-20.04
