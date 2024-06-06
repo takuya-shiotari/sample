@@ -43,7 +43,9 @@ jobs:
 
   test:
     runs-on: ubuntu-20.04
-    needs: build-elasticsearch
+    needs:
+      - build-elasticsearch
+      - setup-matrix
     services:
       mssql:
         image: mcr.microsoft.com/mssql/server:2017-latest
