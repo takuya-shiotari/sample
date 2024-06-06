@@ -13,6 +13,8 @@ env:
   DB_PASSWORD: yourStrong(!)Password
   SWAGGER_UI_VERSION: v4.15.5
   TZ: Asia/Tokyo
+  CI_NODE_TOTAL: 8
+  CI_NODE_CPU_CORES: 2
 
 jobs:
   build-elasticsearch:
@@ -21,6 +23,24 @@ jobs:
       contents: read
     uses: ./.github/workflows/build-elasticsearch.yml
     secrets: inherit
+
+  setup-matrix:
+    runs-on: ubuntu-20.04
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set matrix
+        id: set-matrix
+        run: |
+          ruby -e "
+            require 'json'
+            ci_node_total = ENV['CI_NODE_TOTAL'].to_i
+            ci_node_cpu_cores = ENV['CI_NODE_CPU_CORES'].to_i
+            ci_rspec_total = ci_node_total * ci_node_cpu_cores
+            ci_node_index = ci_rspec_total.times.each_slice(ci_node_cpu_cores).map { |x| x.join(',') }
+            matrix = { ci_node_total: [ci_node_total], ci_rspec_total: [ci_rspec_total], ci_node_index: ci_node_index }
+            puts 'matrix=' + JSON.dump(matrix).inspect" >> $GITHUB_OUTPUT
+
   test:
     runs-on: ubuntu-20.04
     needs: build-elasticsearch
@@ -74,18 +94,7 @@ jobs:
           ES_JAVA_OPTS: -Xms256m -Xmx256m
     strategy:
       fail-fast: false
-      matrix:
-        ci_node_total:
-          - 16
-        ci_node_index:
-          - 0,1
-          - 2,3
-          - 4,5
-          - 6,7
-          - 8,9
-          - 10,11
-          - 12,13
-          - 14,15
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.target) }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -104,7 +113,7 @@ jobs:
           mecab README.md
       - name: Run rspec
         env:
-          PARALLEL_TESTS_CONCURRENCY: ${{ matrix.ci_node_total }}
+          PARALLEL_TESTS_CONCURRENCY: ${{ matrix.ci_rspec_total }}
           CONCURRENCY_INDEX: ${{ matrix.ci_node_index }}
         run: |
           bundle exec rails "parallel:setup[2]"
