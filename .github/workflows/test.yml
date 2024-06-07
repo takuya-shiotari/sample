@@ -111,9 +111,6 @@ jobs:
       - name: Change owner /etc/mecabrc
         run: |
           sudo chown runner:runner /etc/mecabrc
-
-          echo "; hogehoge" >> /etc/mecabrc
-          mecab README.md
       - name: Run rspec
         env:
           PARALLEL_TESTS_CONCURRENCY: ${{ needs.setup-matrix.outputs.ci_rspec_total }}
