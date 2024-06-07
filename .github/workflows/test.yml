@@ -35,8 +35,7 @@ jobs:
           ruby -e "
             require 'json'
             ci_node_total = ENV['CI_NODE_TOTAL'].to_i
-            ci_node_cpu_cores = ENV['CI_NODE_CPU_CORES'].to_i
-            ci_node_index = ci_rspec_total.times.to_a
+            ci_node_index = ci_node_total.times.to_a
             matrix = { ci_node_index: ci_node_index }
             puts 'matrix=' + JSON.dump(matrix)" >> $GITHUB_OUTPUT
 
