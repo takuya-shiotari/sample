@@ -23,7 +23,7 @@ runs:
         version: 1.0
     - name: Install freetds
       env:
-        FREETDS_VERSION: 1.3.17
+        FREETDS_VERSION: ${{ inputs.freetds-version }}
       shell: bash
       working-directory: /tmp
       run: |
