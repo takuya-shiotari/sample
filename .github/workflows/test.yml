@@ -36,8 +36,7 @@ jobs:
             require 'json'
             ci_node_total = ENV['CI_NODE_TOTAL'].to_i
             ci_node_cpu_cores = ENV['CI_NODE_CPU_CORES'].to_i
-            ci_rspec_total = ci_node_total * ci_node_cpu_cores
-            ci_node_index = ci_rspec_total.times.each_slice(ci_node_cpu_cores).map { |x| x.join(',') }
+            ci_node_index = ci_rspec_total.times.to_a
             matrix = { ci_node_index: ci_node_index }
             puts 'matrix=' + JSON.dump(matrix)" >> $GITHUB_OUTPUT
 
@@ -122,8 +121,6 @@ jobs:
           index: ${{ matrix.ci_node_index }}
           total: ${{ env.CI_NODE_TOTAL }}
       - name: Run rspec
-        env:
-          CONCURRENCY_INDEX: ${{ matrix.ci_node_index }}
         run: |
           bundle exec rails "parallel:setup[${CI_NODE_CPU_CORES}]"
           bundle exec parallel_rspec -n $CI_NODE_CPU_CORES ${{ steps.split-tests.outputs.paths }}
