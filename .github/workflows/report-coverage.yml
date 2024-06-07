@@ -16,13 +16,12 @@ jobs:
   report:
     runs-on: ubuntu-20.04
     permissions:
+      contents: read
       pull-requests: write
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Download coverage
         id: download_coverage
         run: |

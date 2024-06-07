@@ -100,7 +100,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           submodules: recursive
           token: ${{ secrets.CI_USER_GITHUB_TOKEN }}
       - uses: ./.github/actions/setup-rails-application
@@ -132,6 +131,7 @@ jobs:
     needs: test
     runs-on: ubuntu-20.04
     permissions:
+      contents: read
       pull-requests: write
     if: success() || failure()
     steps:
@@ -148,8 +148,6 @@ jobs:
             rm -r "${artifact}"
           done
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - uses: ./.github/actions/setup-rails-application
       - name: Collates all result sets
         run: bundle exec rails "coverage:report[/tmp/coverage/.resultset-*.json]"
@@ -168,7 +166,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           path: main
       - name: Checkout swagger-ui
         uses: actions/checkout@v4
@@ -195,6 +192,7 @@ jobs:
   deploy-github-pages:
     needs: build-github-pages
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
