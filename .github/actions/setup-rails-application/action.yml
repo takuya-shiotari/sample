@@ -3,6 +3,11 @@ name: Setup Rails application
 on:
   workflow_call:
 
+inputs:
+  freetds-version:
+    default: "1.3.17"
+    required: false
+
 runs:
   using: "composite"
   steps:
