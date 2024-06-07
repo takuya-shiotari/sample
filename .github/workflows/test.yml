@@ -28,6 +28,7 @@ jobs:
     runs-on: ubuntu-20.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+      ci_rspec_total: ${{ steps.set-matrix.outputs.ci_rspec_total }}
     steps:
       - name: Set matrix
         id: set-matrix
@@ -38,7 +39,8 @@ jobs:
             ci_node_cpu_cores = ENV['CI_NODE_CPU_CORES'].to_i
             ci_rspec_total = ci_node_total * ci_node_cpu_cores
             ci_node_index = ci_rspec_total.times.each_slice(ci_node_cpu_cores).map { |x| x.join(',') }
-            matrix = { ci_node_total: [ci_node_total], ci_rspec_total: [ci_rspec_total], ci_node_index: ci_node_index }
+            matrix = { ci_node_index: ci_node_index }
+            puts 'ci_rspec_total=' + ci_rspec_total.to_s
             puts 'matrix=' + JSON.dump(matrix)" >> $GITHUB_OUTPUT
 
   test:
@@ -114,10 +116,10 @@ jobs:
           mecab README.md
       - name: Run rspec
         env:
-          PARALLEL_TESTS_CONCURRENCY: ${{ matrix.ci_rspec_total }}
+          PARALLEL_TESTS_CONCURRENCY: ${{ needs.setup-matrix.outputs.ci_rspec_total }}
           CONCURRENCY_INDEX: ${{ matrix.ci_node_index }}
         run: |
-          bundle exec rails "parallel:setup[2]"
+          bundle exec rails "parallel:setup[${CI_NODE_CPU_CORES}]"
           bundle exec parallel_rspec -n $PARALLEL_TESTS_CONCURRENCY --only-group $CONCURRENCY_INDEX
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
