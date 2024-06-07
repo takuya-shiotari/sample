@@ -28,7 +28,6 @@ jobs:
     runs-on: ubuntu-20.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
-      ci_rspec_total: ${{ steps.set-matrix.outputs.ci_rspec_total }}
     steps:
       - name: Set matrix
         id: set-matrix
@@ -40,7 +39,6 @@ jobs:
             ci_rspec_total = ci_node_total * ci_node_cpu_cores
             ci_node_index = ci_rspec_total.times.each_slice(ci_node_cpu_cores).map { |x| x.join(',') }
             matrix = { ci_node_index: ci_node_index }
-            puts 'ci_rspec_total=' + ci_rspec_total.to_s
             puts 'matrix=' + JSON.dump(matrix)" >> $GITHUB_OUTPUT
 
   test:
@@ -111,13 +109,30 @@ jobs:
       - name: Change owner /etc/mecabrc
         run: |
           sudo chown runner:runner /etc/mecabrc
+      - uses: actions/download-artifact@v4
+        with:
+          name: junit-xml-reports
+          path: tmp/junit-xml-reports-downloaded
+        continue-on-error: true
+      - uses: r7kamura/split-tests-by-timings@v0
+        id: split-tests
+        with:
+          reports: tmp/junit-xml-reports-downloaded
+          glob: spec/**/*_spec.rb
+          index: ${{ matrix.ci_node_index }}
+          total: ${{ env.CI_NODE_TOTAL }}
       - name: Run rspec
         env:
-          PARALLEL_TESTS_CONCURRENCY: ${{ needs.setup-matrix.outputs.ci_rspec_total }}
           CONCURRENCY_INDEX: ${{ matrix.ci_node_index }}
         run: |
           bundle exec rails "parallel:setup[${CI_NODE_CPU_CORES}]"
-          bundle exec parallel_rspec -n $PARALLEL_TESTS_CONCURRENCY --only-group $CONCURRENCY_INDEX
+          bundle exec parallel_rspec -n $CI_NODE_CPU_CORES ${{ steps.split-tests.outputs.paths }}
+      - if: format('refs/heads/{0}', github.event.repository.default_branch) == github.ref
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          name: junit-xml-reports
+          path: test_results
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
         with:
