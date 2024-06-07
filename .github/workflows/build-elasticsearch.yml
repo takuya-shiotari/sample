@@ -28,8 +28,6 @@ jobs:
         with:
           sparse-checkout: |
             containers/elasticsearch
-      - name: Test
-        run: git log
       - uses: mad9000/actions-find-and-replace-string@5
         id: aws-region-underscore
         with:
