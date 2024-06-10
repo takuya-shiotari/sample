@@ -112,6 +112,8 @@ jobs:
           name: junit-xml-reports-*
           name_is_regexp: true
           path: tmp/junit-xml-reports-downloaded
+          branch: ${{ github.event.repository.default_branch }}
+          workflow_conclusion: success
         continue-on-error: true
       - name: test
         run: find tmp/junit-xml-reports-downloaded
