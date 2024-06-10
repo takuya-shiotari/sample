@@ -112,6 +112,8 @@ jobs:
           pattern: junit-xml-reports-*
           path: tmp/junit-xml-reports-downloaded
         continue-on-error: true
+      - name: test
+        run: find tmp/junit-xml-reports-downloaded
       - uses: r7kamura/split-tests-by-timings@v0
         id: split-tests
         with:
