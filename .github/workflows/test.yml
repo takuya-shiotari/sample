@@ -115,8 +115,6 @@ jobs:
           branch: ${{ github.event.repository.default_branch }}
           workflow_conclusion: success
         continue-on-error: true
-      - name: test
-        run: find tmp/junit-xml-reports-downloaded
       - uses: r7kamura/split-tests-by-timings@v0
         id: split-tests
         with:
