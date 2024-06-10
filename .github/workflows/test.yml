@@ -109,7 +109,7 @@ jobs:
           sudo chown runner:runner /etc/mecabrc
       - uses: actions/download-artifact@v4
         with:
-          name: junit-xml-reports
+          pattern: junit-xml-reports-*
           path: tmp/junit-xml-reports-downloaded
         continue-on-error: true
       - uses: r7kamura/split-tests-by-timings@v0
