@@ -107,9 +107,10 @@ jobs:
       - name: Change owner /etc/mecabrc
         run: |
           sudo chown runner:runner /etc/mecabrc
-      - uses: actions/download-artifact@v4
+      - uses: dawidd6/action-download-artifact@v5
         with:
-          pattern: junit-xml-reports-*
+          name: junit-xml-reports-*
+          name_is_regexp: true
           path: tmp/junit-xml-reports-downloaded
         continue-on-error: true
       - name: test
