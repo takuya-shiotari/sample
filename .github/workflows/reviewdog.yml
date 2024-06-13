@@ -18,9 +18,12 @@ jobs:
       contents: read
       pull-requests: write
     steps:
+      - run: echo "FETCH_DEPTH=$(( commits + 1 ))" >> $GITHUB_ENV
+        env:
+          commits: ${{ github.event.pull_request.commits }}
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: ${{ env.FETCH_DEPTH }}
       - uses: ./.github/actions/setup-rails-application
       - uses: reviewdog/action-rubocop@v2
         with:
