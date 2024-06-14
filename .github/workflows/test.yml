@@ -108,7 +108,8 @@ jobs:
         run: |
           sudo chown runner:runner /etc/mecabrc
           # RAILS_ENV=test bundle exec rake mecab:update_mecabrc
-      - uses: dawidd6/action-download-artifact@v5
+      - name: Download JUnit XML reports
+        uses: dawidd6/action-download-artifact@v5
         with:
           name: junit-xml-reports-*
           name_is_regexp: true
@@ -116,7 +117,8 @@ jobs:
           branch: ${{ github.event.repository.default_branch }}
           workflow_conclusion: success
         continue-on-error: true
-      - uses: r7kamura/split-tests-by-timings@v0
+      - name: Split tests by timings
+        uses: r7kamura/split-tests-by-timings@v0
         id: split-tests
         with:
           reports: tmp/junit-xml-reports-downloaded
@@ -127,7 +129,9 @@ jobs:
         run: |
           bundle exec rails "parallel:setup[${CI_NODE_CPU_CORES}]"
           bundle exec parallel_rspec -n $CI_NODE_CPU_CORES ${{ steps.split-tests.outputs.paths }}
-      - uses: actions/upload-artifact@v4
+      - if: format('refs/heads/{0}', github.event.repository.default_branch) == github.ref
+        name: Upload JUnit XML reports
+        uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
           name: junit-xml-reports-${{ matrix.ci_node_index }}
