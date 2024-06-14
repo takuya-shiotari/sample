@@ -33,7 +33,7 @@ jobs:
       - uses: reviewdog/action-eslint@v1
         if: success() || failure()
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ github.token }}
           reporter: github-pr-review
           eslint_flags: $(git diff --name-only --diff-filter=ACMR origin/${{ github.event.repository.default_branch }} -- 'app/**/*.js')
           reviewdog_flags: -diff="git diff origin/${{ github.event.repository.default_branch }} app/**/*.js"
@@ -47,7 +47,7 @@ jobs:
       - uses: reviewdog/action-stylelint@v1
         if: (success() || failure()) && steps.filter-changed-scss.outputs.files != ''
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ github.token }}
           reporter: github-pr-review
           stylelint_input: $(git diff --name-only --diff-filter=ACMR origin/${{ github.event.repository.default_branch }} -- 'app/**/*.scss')
           fail_on_error: true
