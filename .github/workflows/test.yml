@@ -15,6 +15,7 @@ env:
   TZ: Asia/Tokyo
   CI_NODE_TOTAL: 8
   CI_NODE_CPU_CORES: 2
+  RAILS_ENV: test
 
 jobs:
   build-elasticsearch:
@@ -107,7 +108,7 @@ jobs:
       - name: Update mecabrc
         run: |
           sudo chown runner:runner /etc/mecabrc
-          # RAILS_ENV=test bundle exec rake mecab:update_mecabrc
+          # bundle exec rake mecab:update_mecabrc
       - name: Download JUnit XML reports
         uses: dawidd6/action-download-artifact@v5
         with:
