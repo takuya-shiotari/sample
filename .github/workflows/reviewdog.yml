@@ -36,7 +36,7 @@ jobs:
           github_token: ${{ github.token }}
           reporter: github-pr-review
           eslint_flags: $(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }} -- 'app/**/*.js')
-          reviewdog_flags: -diff="git diff origin/${{ github.event.repository.base_ref }} app/**/*.js"
+          reviewdog_flags: -diff="git diff origin/${{ github.base_ref }} app/**/*.js"
           fail_on_error: true
       - name: Filter changed scss
         id: filter-changed-scss
