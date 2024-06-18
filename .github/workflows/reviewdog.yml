@@ -42,7 +42,7 @@ jobs:
         id: filter-changed-scss
         if: success() || failure()
         run: |
-          files=$(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }} -- 'app/**/*.scss')
+          files=$(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }} -- 'app/**/*.scss' -w)
           echo "files=${files}" >> $GITHUB_OUTPUT
       - uses: reviewdog/action-stylelint@v1
         if: (success() || failure()) && steps.filter-changed-scss.outputs.files != ''
