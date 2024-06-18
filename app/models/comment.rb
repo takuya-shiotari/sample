@@ -12,6 +12,6 @@ class Comment
   end
 
   def to_s
-    @body
+@body
   end
 end
