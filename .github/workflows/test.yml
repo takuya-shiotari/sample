@@ -61,7 +61,21 @@ jobs:
         run: |
           sudo chown runner:runner /etc/mecabrc
           # bundle exec rake mecab:update_mecabrc
+      - name: Download spec/examples.txt
+        uses: actions/download-artifact@v4
+        with:
+          pattern: examples-${{ matrix.ci_node_index }}.txt
+      - name: Check if re-run failed tests only
+        id: failed-tests-only
+        run: |
+          if [ -e examples-${{ matrix.ci_node_index }}.txt ]; then
+            mv examples-${{ matrix.ci_node_index }}.txt spec/examples.txt
+            echo "value=true" >> $GITHUB_OUTPUT
+          else
+            echo "value=false" >> $GITHUB_OUTPUT
+          fi
       - name: Download JUnit XML reports
+        if: ${{ steps.failed-tests-only.outputs.value == 'false' }}
         uses: dawidd6/action-download-artifact@v5
         with:
           name: junit-xml-reports-*
@@ -71,6 +85,7 @@ jobs:
           workflow_conclusion: success
         continue-on-error: true
       - name: Split tests by timings
+        if: ${{ steps.failed-tests-only.outputs.value == 'false' }}
         uses: r7kamura/split-tests-by-timings@v0
         id: split-tests
         with:
@@ -78,24 +93,34 @@ jobs:
           glob: spec/**/*_spec.rb
           index: ${{ matrix.ci_node_index }}
           total: ${{ env.CI_NODE_TOTAL }}
-      - name: Run rspec
+      - name: Setup DB
         run: |
           bundle exec rails "parallel:setup[${CI_NODE_CPU_CORES}]"
+      - name: Run rspec
+        if: ${{ steps.failed-tests-only.outputs.value == 'false' }}
+        run: |
           bundle exec parallel_rspec -n $CI_NODE_CPU_CORES ${{ steps.split-tests.outputs.paths }}
-      - if: format('refs/heads/{0}', github.event.repository.default_branch) == github.ref
-        name: Upload JUnit XML reports
+      - name: Upload JUnit XML reports
+        if: ${{ steps.failed-tests-only.outputs.value == 'false' }}
         uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
           name: junit-xml-reports-${{ matrix.ci_node_index }}
           path: test_results
       - name: Archive code coverage results
+        if: ${{ steps.failed-tests-only.outputs.value == 'false' }}
         uses: actions/upload-artifact@v4
         with:
           name: coverage-${{ matrix.ci_node_index }}
           path: coverage/.resultset.json
       - name: Run rspec only failures
         run: bundle exec rspec --only-failures
+      - name: Upload spec/examples.txt
+        if: (success() || failure()) && hashFiles('spec/examples.txt') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: examples-${{ matrix.ci_node_index }}.txt
+          path: spec/examples.txt
 
   report-coverage:
     needs: test
