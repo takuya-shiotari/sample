@@ -13,7 +13,7 @@ env:
   DB_PASSWORD: yourStrong(!)Password
   SWAGGER_UI_VERSION: v4.15.5
   TZ: Asia/Tokyo
-  CI_NODE_TOTAL: 8
+  CI_NODE_TOTAL: 2
   CI_NODE_CPU_CORES: 2
   RAILS_ENV: test
 
