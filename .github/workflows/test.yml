@@ -49,11 +49,13 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           submodules: recursive
           token: ${{ secrets.CI_USER_GITHUB_TOKEN }}
-      - uses: ./.github/actions/setup-rails-application
+      - name: Setup rails application
+        uses: ./.github/actions/setup-rails-application
       - name: Bundle assets
         run: |
           NODE_OPTIONS="--max-old-space-size=512" ./node_modules/.bin/webpack
@@ -66,7 +68,7 @@ jobs:
         with:
           pattern: examples-${{ matrix.ci_node_index }}
           path: tmp
-      - name: Check if re-run failed tests only
+      - name: Check if only failed tests should be re-run
         id: failed-tests-only
         run: |
           if [ -e tmp/examples-${{ matrix.ci_node_index }}/examples.txt ]; then
@@ -110,7 +112,7 @@ jobs:
           if-no-files-found: error
           name: junit-xml-reports-${{ matrix.ci_node_index }}
           path: test_results
-      - name: Archive code coverage results
+      - name: Upload coverage/.resultset.json
         if: ${{ steps.failed-tests-only.outputs.value == 'false' }}
         uses: actions/upload-artifact@v4
         with:
@@ -133,7 +135,7 @@ jobs:
       pull-requests: write
     if: success() || failure()
     steps:
-      - name: Download artifacts
+      - name: Download all coverage artifacts
         uses: actions/download-artifact@v4
         with:
           pattern: coverage-*
@@ -145,13 +147,15 @@ jobs:
             mv ${artifact}/.resultset.json /tmp/coverage/.resultset-${artifact}.json
             rm -r "${artifact}"
           done
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-rails-application
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup rails application
+        uses: ./.github/actions/setup-rails-application
       - name: Collates all result sets
         run: bundle exec rails "coverage:report[/tmp/coverage/.resultset-*.json]"
       - name: Coverage Report by octocov
         uses: k1LoW/octocov-action@v1
-      - name: Archive code coverage results
+      - name: Upload coverage
         uses: actions/upload-artifact@v4
         with:
           name: coverage
@@ -162,7 +166,8 @@ jobs:
     runs-on: ubuntu-20.04
     if: format('refs/heads/{0}', github.event.repository.default_branch) == github.ref
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           path: main
       - name: Checkout swagger-ui
