@@ -26,12 +26,9 @@ jobs:
       - name: Set matrix
         id: set-matrix
         run: |
-          ruby -e "
-            require 'json'
-            ci_node_total = ENV['CI_NODE_TOTAL'].to_i
-            ci_node_index = ci_node_total.times.to_a
-            matrix = { ci_node_index: ci_node_index }
-            puts 'matrix=' + JSON.dump(matrix)" >> $GITHUB_OUTPUT
+           seq -s ',' 0 $(($CI_NODE_TOTAL - 1)) | \
+             jq -R 'split(",") | map(select(length > 0)) | map(tonumber)' | \
+             jq -r '"matrix={\"ci_node_index\":\(.)}"' >> $GITHUB_OUTPUT
 
   test:
     runs-on: ubuntu-20.04
