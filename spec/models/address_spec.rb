@@ -9,7 +9,7 @@ RSpec.describe Address do
   describe '#to_s' do
     it 'returns name value' do
       address = Address.new(pref: 'tokyo')
-      expect(address.to_s).to eq 'tokyo'
+      expect(address.to_s).to eq 'tokyo3'
     end
   end
 end
