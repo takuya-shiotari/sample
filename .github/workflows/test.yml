@@ -73,10 +73,10 @@ jobs:
             sudo chown runner:runner spec/examples.txt
             echo "value=true" >> $GITHUB_OUTPUT
           else
-            echo "value=false" >> $GITHUB_OUTPUT
+            echo "value=" >> $GITHUB_OUTPUT
           fi
       - name: Download JUnit XML reports (full test)
-        if: ${{ steps.failed-tests-only.outputs.value == 'false' }}
+        if: ${{ !steps.failed-tests-only.outputs.value }}
         uses: dawidd6/action-download-artifact@v5
         with:
           name: junit-xml-reports-*
@@ -86,7 +86,7 @@ jobs:
           workflow_conclusion: success
         continue-on-error: true
       - name: Split tests by timings
-        if: ${{ steps.failed-tests-only.outputs.value == 'false' }}
+        if: ${{ !steps.failed-tests-only.outputs.value }}
         uses: r7kamura/split-tests-by-timings@v0
         id: split-tests
         with:
@@ -97,13 +97,13 @@ jobs:
       - name: Setup DB
         run: bundle exec rails "parallel:setup[${CI_NODE_CPU_CORES}]"
       - name: Run rspec in parallel
-        if: ${{ steps.failed-tests-only.outputs.value == 'false' }}
+        if: ${{ !steps.failed-tests-only.outputs.value }}
         run: bundle exec parallel_rspec -n $CI_NODE_CPU_CORES ${{ steps.split-tests.outputs.paths }}
       - name: Re-run rspec only failures
-        if: ${{ steps.failed-tests-only.outputs.value == 'true' }}
+        if: ${{ steps.failed-tests-only.outputs.value }}
         run: bundle exec rspec --only-failures --failure-exit-code=0
       - name: Upload JUnit XML reports (full test)
-        if: ${{ format('refs/heads/{0}', github.event.repository.default_branch) == github.ref && steps.failed-tests-only.outputs.value == 'false' }}
+        if: ${{ format('refs/heads/{0}', github.event.repository.default_branch) == github.ref && !steps.failed-tests-only.outputs.value }}
         uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
@@ -116,7 +116,7 @@ jobs:
           name: junit-xml-reports-partial-${{ matrix.ci_node_index }}
           path: test_results
       - name: Upload coverage/.resultset.json
-        if: ${{ steps.failed-tests-only.outputs.value == 'false' }}
+        if: ${{ !steps.failed-tests-only.outputs.value }}
         uses: actions/upload-artifact@v4
         with:
           name: coverage-${{ matrix.ci_node_index }}
