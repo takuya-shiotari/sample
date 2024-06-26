@@ -75,7 +75,7 @@ jobs:
           else
             echo "value=false" >> $GITHUB_OUTPUT
           fi
-      - name: Download JUnit XML reports
+      - name: Download JUnit XML reports (full test)
         if: ${{ steps.failed-tests-only.outputs.value == 'false' }}
         uses: dawidd6/action-download-artifact@v5
         with:
@@ -102,12 +102,18 @@ jobs:
       - name: Re-run rspec only failures
         if: ${{ steps.failed-tests-only.outputs.value == 'true' }}
         run: bundle exec rspec --only-failures --failure-exit-code=0
-      - name: Upload JUnit XML reports
+      - name: Upload JUnit XML reports (full test)
         if: ${{ format('refs/heads/{0}', github.event.repository.default_branch) == github.ref && steps.failed-tests-only.outputs.value == 'false' }}
         uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
           name: junit-xml-reports-${{ matrix.ci_node_index }}
+          path: test_results
+      - name: Upload JUnit XML reports (partial test)
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          name: junit-xml-reports-partial-${{ matrix.ci_node_index }}
           path: test_results
       - name: Upload coverage/.resultset.json
         if: ${{ steps.failed-tests-only.outputs.value == 'false' }}
@@ -157,6 +163,37 @@ jobs:
         with:
           name: coverage
           path: coverage
+
+  report-failed-tests:
+    needs: test
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: read
+      pull-requests: write
+    if: success() || failure()
+    env:
+      OUTPUT_FILE_PATH: tmp/rspec_reviewdog.jsonl
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup reviewdog
+        uses: reviewdog/action-setup@v1
+      - name: Setup rails application
+        uses: ./.github/actions/setup-rails-application
+      - name: Download JUnit XML reports (partial test)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: junit-xml-reports-partial-*
+          path: tmp/junit-xml-reports-downloaded
+      - name: Generate RSspec reviewdog json
+        env:
+          JUNIT_XML_FILE_PATH_PATTERN: tmp/junit-xml-reports-downloaded/**/*.xml
+        run: bundle exec ruby scripts/generate_rspec_reviewdog_json.rb
+      - name: Run rspec reviewdog
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ github.token }}
+        run: |
+          cat $OUTPUT_FILE_PATH | reviewdog -f=rdjsonl -reporter=github-check
 
   build-github-pages:
     needs: report-coverage
