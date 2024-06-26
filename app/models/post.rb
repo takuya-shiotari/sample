@@ -23,7 +23,7 @@ class Post < ApplicationRecord
   end
 
   def title_with_default
-    title.presence || 'No title'
+    title.presence || 'No title aaaaaaaaa'
   end
 
   def foo
