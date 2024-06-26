@@ -30,7 +30,7 @@ RSpec.describe Post do
 
   describe '#title_with_default' do
     it 'returns truncated title' do
-      post = Post.new(title: '', body: 'body3')
+      post = Post.new(title: '', body: 'body')
       expect(post.title_with_default).to eq 'No title'
     end
   end
@@ -45,7 +45,7 @@ RSpec.describe Post do
   describe '#foo' do
     it 'returns foo' do
       post = Post.new(title: 'title', body: 'body')
-      expect(post.foo).to eq 'foo2'
+      expect(post.foo).to eq [1, 2, 3, 'foo', 4].sample
     end
   end
 end
