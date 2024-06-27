@@ -1,0 +1,35 @@
+name: Created discussion comment
+
+on:
+  discussion_comment:
+    types: [created]
+jobs:
+  discussion_commented:
+    name: Created comment
+    runs-on: ubuntu-latest
+    if: github.event.discussion && github.event.comment
+    env:
+      DISCUSSION_TITLE: ${{ github.event.discussion.title }}
+      COMMENT_USER: ${{ github.event.comment.user.login }}
+      COMMENT_BODY: ${{ github.event.comment.body }}
+      COMMENT_URL: ${{ github.event.comment.html_url }}
+    steps:
+      - run: |
+          curl -X POST -d '{ 
+          "text": `echo -n "Discussion comment by $COMMENT_USER" | jq -Rs .`,
+          "unfurl_links": true, 
+          "attachments" : [
+            {
+              "color": "#c0c0c0",
+              "fields": [
+                {
+                  "title": `echo -n "Comment on $DISCUSSION_TITLE" | jq -Rs .`,
+                  "value": `echo -n $COMMENT_BODY | jq -Rs .`
+                },
+                {
+                  "title": "Discussion Comment URL",
+                  "value": `echo -n $COMMENT_URL | jq -Rs .`
+                }
+              ]
+            }
+          ] }' ${{ secrets.SLACK_WEBHOOK_URL }}
