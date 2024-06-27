@@ -36,7 +36,7 @@ jobs:
                 }
               ]
             }
-          ] }' | jq .
+          ] }'
           curl -X POST -d '{ 
           "text": ${TITLE},
           "unfurl_links": true, 
