@@ -19,6 +19,24 @@ jobs:
           FIELD1_TITLE=`echo -n "Comment on $DISCUSSION_TITLE" | jq -Rs .`
           FIELD1_VALUE=`echo -n $COMMENT_BODY | jq -Rs .`
           FIELD2_VALUE=`echo -n $COMMENT_URL | jq -Rs .`
+          echo '{ 
+          "text": ${TITLE},
+          "unfurl_links": true, 
+          "attachments" : [
+            {
+              "color": "#c0c0c0",
+              "fields": [
+                {
+                  "title": ${FIELD1_TITLE},
+                  "value": ${FIELD1_VALUE}
+                },
+                {
+                  "title": "Discussion Comment URL",
+                  "value": ${FIELD2_VALUE}
+                }
+              ]
+            }
+          ] }' | jq .
           curl -X POST -d '{ 
           "text": ${TITLE},
           "unfurl_links": true, 
