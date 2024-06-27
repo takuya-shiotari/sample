@@ -15,20 +15,24 @@ jobs:
       COMMENT_URL: ${{ github.event.comment.html_url }}
     steps:
       - run: |
+          TITLE=`echo -n "Discussion comment by $COMMENT_USER" | jq -Rs .`
+          FIELD1_TITLE=`echo -n "Comment on $DISCUSSION_TITLE" | jq -Rs .`
+          FIELD1_VALUE=`echo -n $COMMENT_BODY | jq -Rs .`
+          FIELD2_VALUE=`echo -n $COMMENT_URL | jq -Rs .`
           curl -X POST -d '{ 
-          "text": `echo -n "Discussion comment by $COMMENT_USER" | jq -Rs .`,
+          "text": ${TITLE},
           "unfurl_links": true, 
           "attachments" : [
             {
               "color": "#c0c0c0",
               "fields": [
                 {
-                  "title": `echo -n "Comment on $DISCUSSION_TITLE" | jq -Rs .`,
-                  "value": `echo -n $COMMENT_BODY | jq -Rs .`
+                  "title": ${FIELD1_TITLE},
+                  "value": ${FIELD1_VALUE}
                 },
                 {
                   "title": "Discussion Comment URL",
-                  "value": `echo -n $COMMENT_URL | jq -Rs .`
+                  "value": ${FIELD2_VALUE}
                 }
               ]
             }
