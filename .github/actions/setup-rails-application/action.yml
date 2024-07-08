@@ -49,8 +49,8 @@ runs:
       id: cache-node-modules
       uses: actions/cache@v4
       with:
-        path: node_modules
-        key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
     - name: Install dpendencies
       shell: bash
       run: npm ci

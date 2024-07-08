@@ -60,11 +60,14 @@ jobs:
         run: |
           sudo chown runner:runner /etc/mecabrc
           # bundle exec rake mecab:update_mecabrc
+      # 一つ前のrspecの実行データ(spec/examples.txt)をダウンロードする
       - name: Download spec/examples.txt
         uses: actions/download-artifact@v4
         with:
           pattern: examples-${{ matrix.ci_node_index }}
           path: tmp
+      # spec/examples.txtがある場合は、再実行なので失敗したテストだけを実行する
+      # spec/examples.txtがない場合は、初回実行なのでmasterブランチのJUnit XMLデータからテストを分割して全テスト実行
       - name: Check if only failed tests should be re-run
         id: failed-tests-only
         run: |
@@ -75,7 +78,8 @@ jobs:
           else
             echo "value=" >> $GITHUB_OUTPUT
           fi
-      - name: Download JUnit XML reports (full test)
+      # masterブランチのテスト結果(JUnit XML)をダウンロード
+      - name: Download JUnit XML reports (full test for master branch)
         if: ${{ !steps.failed-tests-only.outputs.value }}
         uses: dawidd6/action-download-artifact@v5
         with:
@@ -85,12 +89,7 @@ jobs:
           branch: ${{ github.event.repository.default_branch }}
           workflow_conclusion: success
         continue-on-error: true
-      - name: Filter JUnit XML reports
-        if: ${{ !steps.failed-tests-only.outputs.value }}
-        run: |
-          for file in `find tmp/junit-xml-reports-downloaded -type f -name '*.xml'`; do
-            xmllint --noout $file || rm -rf $file
-          done
+      # masterブランチのテスト結果(JUnit XML)を元にテストの実行時間が各ノードで均一になるように分割
       - name: Split tests by timings
         if: ${{ !steps.failed-tests-only.outputs.value }}
         uses: r7kamura/split-tests-by-timings@v0
@@ -108,7 +107,15 @@ jobs:
       - name: Re-run rspec only failures
         if: ${{ steps.failed-tests-only.outputs.value }}
         run: bundle exec rspec --only-failures --failure-exit-code=0
-      - name: Upload JUnit XML reports (full test)
+      - name: Filter invalid JUnit XML reports
+        if: ${{ !steps.failed-tests-only.outputs.value }}
+        run: |
+          for file in `find test_results -type f -name '*.xml'`; do
+            xmllint --noout $file || rm -rf $file
+          done
+      # masterブランチの場合だけ全テストのJUnit XMLをアップロードする
+      # また、再実行だと失敗したテストのみの実行になりカバレッジが下がってしまうので、再実行時はアップロードしない
+      - name: Upload JUnit XML reports (full test for master branch)
         if: ${{ format('refs/heads/{0}', github.event.repository.default_branch) == github.ref && !steps.failed-tests-only.outputs.value }}
         uses: actions/upload-artifact@v4
         with:
@@ -125,6 +132,7 @@ jobs:
         run: |
           rm -rf test_results/*
           bundle exec rspec --only-failures --format RspecJunitFormatter --out test_results/rspec.xml
+      # 再実行時に失敗したテストを実行するために保存しておく
       - name: Upload spec/examples.txt
         if: ${{ success() || failure() }}
         uses: actions/upload-artifact@v4
@@ -132,6 +140,14 @@ jobs:
           name: examples-${{ matrix.ci_node_index }}
           path: spec/examples.txt
           if-no-files-found: ignore
+      - name: Filter invalid JUnit XML reports
+        if: ${{ success() || failure() }}
+        run: |
+          for file in `find test_results -type f -name '*.xml'`; do
+            xmllint --noout $file || rm -rf $file
+          done
+      # report-failed-testsで使用するJUnit XMLをアップロードする
+      # こちらのJUnit XMLは失敗したテストデータだけ取得できればよいでの、初回実行・再実行どちらもアップロードする
       - name: Upload JUnit XML reports (partial test)
         if: ${{ success() || failure() }}
         uses: actions/upload-artifact@v4
@@ -177,6 +193,7 @@ jobs:
   report-failed-tests:
     needs: test
     runs-on: ubuntu-20.04
+    continue-on-error: true
     permissions:
       contents: read
       pull-requests: write
@@ -190,16 +207,12 @@ jobs:
         uses: reviewdog/action-setup@v1
       - name: Setup rails application
         uses: ./.github/actions/setup-rails-application
+      # masterブランチではなく、直前のtestジョブでアップロードしたJUnit XMLをダウンロードする
       - name: Download JUnit XML reports (partial test)
         uses: actions/download-artifact@v4
         with:
           pattern: junit-xml-reports-partial-*
           path: tmp/junit-xml-reports-downloaded
-      - name: Filter JUnit XML reports
-        run: |
-          for file in `find tmp/junit-xml-reports-downloaded -type f -name '*.xml'`; do
-            xmllint --noout $file || rm -rf $file
-          done
       - name: Generate RSspec reviewdog json
         env:
           JUNIT_XML_FILE_PATH_PATTERN: tmp/junit-xml-reports-downloaded/**/*.xml
