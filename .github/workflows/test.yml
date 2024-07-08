@@ -85,6 +85,12 @@ jobs:
           branch: ${{ github.event.repository.default_branch }}
           workflow_conclusion: success
         continue-on-error: true
+      - name: Filter JUnit XML reports
+        if: ${{ !steps.failed-tests-only.outputs.value }}
+        run: |
+          for file in `find tmp/junit-xml-reports-downloaded -type f -name '*.xml'`; do
+            xmllint --noout $file || rm -rf $file
+          done
       - name: Split tests by timings
         if: ${{ !steps.failed-tests-only.outputs.value }}
         uses: r7kamura/split-tests-by-timings@v0
@@ -189,6 +195,11 @@ jobs:
         with:
           pattern: junit-xml-reports-partial-*
           path: tmp/junit-xml-reports-downloaded
+      - name: Filter JUnit XML reports
+        run: |
+          for file in `find tmp/junit-xml-reports-downloaded -type f -name '*.xml'`; do
+            xmllint --noout $file || rm -rf $file
+          done
       - name: Generate RSspec reviewdog json
         env:
           JUNIT_XML_FILE_PATH_PATTERN: tmp/junit-xml-reports-downloaded/**/*.xml
