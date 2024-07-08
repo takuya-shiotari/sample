@@ -26,6 +26,7 @@ class Post < ApplicationRecord
     title.presence || 'No title'
   end
 
+  # @return [String]
   def foo
     'foo'
   end
