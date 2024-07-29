@@ -11,6 +11,10 @@ class Comment
     other.body == body
   end
 
+  def bar
+    'bar'
+  end
+
   def to_s
     @body
   end
