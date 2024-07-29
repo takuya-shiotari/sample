@@ -12,7 +12,7 @@ class Comment
   end
 
   def bar
-    'ba'
+    'barbar'
   end
 
   def to_s
