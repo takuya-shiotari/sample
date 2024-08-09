@@ -2,7 +2,6 @@ name: Reviewdog
 
 on:
   pull_request:
-  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -11,9 +10,14 @@ concurrency:
 env:
   BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   reviewdog:
     runs-on: ubuntu-20.04
+    timeout-minutes: 5
     permissions:
       contents: read
       pull-requests: write
@@ -42,7 +46,7 @@ jobs:
         id: filter-changed-scss
         if: success() || failure()
         run: |
-          files=$(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }} -- 'app/**/*.scss')
+          files=$(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }} -- 'app/**/*.scss' | tr '\n' ' ')
           echo "files=${files}" >> $GITHUB_OUTPUT
       - uses: reviewdog/action-stylelint@v1
         if: (success() || failure()) && steps.filter-changed-scss.outputs.files != ''

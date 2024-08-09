@@ -17,6 +17,10 @@ env:
   AWS_ROLE_ARN: ${{ vars.OIDC_ROLE_ARN_STG }}
   ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build:
     runs-on: ubuntu-20.04

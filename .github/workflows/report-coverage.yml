@@ -3,7 +3,6 @@ name: Report coverage
 on:
   pull_request:
     types: opened
-  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -12,12 +11,18 @@ concurrency:
 env:
   TEST_WORKFLOW_NAME: Test
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   report:
     runs-on: ubuntu-20.04
+    timeout-minutes: 5
     permissions:
       contents: read
       pull-requests: write
+      actions: read
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
