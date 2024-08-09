@@ -208,7 +208,7 @@ jobs:
       pull-requests: write
     if: success() || failure()
     env:
-      OUTPUT_FILE_PATH: ${{ runner.temp }}/rspec_reviewdog.jsonl
+      OUTPUT_FILE_NAME: rspec_reviewdog.jsonl
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -227,10 +227,12 @@ jobs:
       - name: Generate RSspec reviewdog json
         env:
           JUNIT_XML_FILE_PATH_PATTERN: ${{ runner.temp }}/junit-xml-reports-downloaded/**/*.xml
+          OUTPUT_FILE_PATH: ${{ runner.temp }}/${{ env.OUTPUT_FILE_NAME }}
         run: bundle exec ruby scripts/generate_rspec_reviewdog_json.rb
       - name: Run rspec reviewdog
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ github.token }}
+          OUTPUT_FILE_PATH: ${{ runner.temp }}/${{ env.OUTPUT_FILE_NAME }}
         run: |
           cat $OUTPUT_FILE_PATH | reviewdog -f=rdjsonl -reporter=github-check
 
