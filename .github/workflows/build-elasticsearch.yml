@@ -32,13 +32,10 @@ jobs:
         with:
           sparse-checkout: |
             containers/elasticsearch
-      - uses: mad9000/actions-find-and-replace-string@5
+      - name: Underscore AWS_REGION value
         id: aws-region-underscore
-        with:
-          source: ${{ env.AWS_REGION }}
-          find: '-'
-          replace: '_'
-          replaceAll: true
+        run: |
+          echo "value=${AWS_REGION//-/_}" >> "$GITHUB_OUTPUT"
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
