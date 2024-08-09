@@ -14,7 +14,7 @@ runs:
     - name: Cache freetds
       uses: actions/cache@v4
       with:
-        path: /tmp/freetds-${{ inputs.freetds-version }}
+        path: ${{ runner.temp }}/freetds-${{ inputs.freetds-version }}
         key: ${{ runner.os }}-freetds-${{ inputs.freetds-version }}
     - name: Install packages
       uses: awalsh128/cache-apt-pkgs-action@latest
@@ -25,7 +25,7 @@ runs:
       env:
         FREETDS_VERSION: ${{ inputs.freetds-version }}
       shell: bash
-      working-directory: /tmp
+      working-directory: ${{ runner.temp }}
       run: |
         if [ ! -d "freetds-${FREETDS_VERSION}" ]; then
           wget http://www.freetds.org/files/stable/freetds-${FREETDS_VERSION}.tar.gz
