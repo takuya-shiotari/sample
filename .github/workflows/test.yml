@@ -208,7 +208,7 @@ jobs:
       pull-requests: write
     if: success() || failure()
     env:
-      OUTPUT_FILE_PATH: tmp/rspec_reviewdog.jsonl
+      OUTPUT_FILE_PATH: ${{ env.RUNNER_TEMP }}/rspec_reviewdog.jsonl
     steps:
       - name: Checkout
         uses: actions/checkout@v4
