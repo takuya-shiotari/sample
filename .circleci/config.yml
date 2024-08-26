@@ -4,11 +4,6 @@ orbs:
   aws-ecr: circleci/aws-ecr@9.0.3
   browser-tools: circleci/browser-tools@1.2.3
 references:
-  elasticsearch: &elasticsearch
-    image: 000000000000.dkr.ecr.ap-northeast-1.amazonaws.com/sample/elasticsearch:latest
-    aws_auth:
-      aws_access_key_id: ${AWS_ACCESS_KEY_ID}
-      aws_secret_access_key: ${AWS_SECRET_ACCESS_KEY}
   sample_image: &sample_image
     docker:
       - image: cimg/ruby:3.1.2-browsers
@@ -21,30 +16,6 @@ references:
           ACCEPT_EULA: "Y"
           SA_PASSWORD: "password"
       - image: circleci/dynamodb
-      - name: elasticsearch-node1
-        environment:
-          - cluster.name=elasticsearch-cluster
-          - node.name=elasticsearch-node1
-          - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-          - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-          - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
-        <<: *elasticsearch
-      - name: elasticsearch-node2
-        environment:
-          - cluster.name=elasticsearch-cluster
-          - node.name=elasticsearch-node2
-          - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-          - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-          - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
-        <<: *elasticsearch
-      - name: elasticsearch-node3
-        environment:
-          - cluster.name=elasticsearch-cluster
-          - node.name=elasticsearch-node3
-          - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-          - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
-          - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
-        <<: *elasticsearch
   restore_bundler_cache: &restore_bundler_cache
     restore_cache:
       name: Restore bundler cache
@@ -126,17 +97,6 @@ references:
         git submodule sync
         git submodule update --init --recursive
 
-  build-and-push-elasticsearch-image-staging: &build-and-push-elasticsearch-image-staging
-    account_id: "000000000000"
-    auth:
-      - aws-cli/setup:
-          aws_access_key_id: AWS_ACCESS_KEY_ID
-          aws_secret_access_key: AWS_SECRET_ACCESS_KEY
-    path: dockerfiles/elasticsearch
-    build_path: dockerfiles/elasticsearch
-    region: ap-northeast-1
-    repo: sample/containers/elasticsearch
-
 jobs:
   validate-swagger-files:
     docker:
@@ -147,18 +107,6 @@ jobs:
           name: validate swagger.yml
           command: |
             python /opt/openapi-validator/validator.py swagger/swagger.yml
-      - run:
-          name: validate connect_swagger.yml
-          command: |
-            python /opt/openapi-validator/validator.py swagger/connect_swagger.yml
-      - run:
-          name: validate lab_swagger.yml
-          command: |
-            python /opt/openapi-validator/validator.py swagger/lab_swagger.yml
-      - run:
-          name: validate queuing_swagger.yml
-          command: |
-            python /opt/openapi-validator/validator.py swagger/queuing_swagger.yml
   test:
     <<: *sample_image
     parallelism: 6
@@ -254,16 +202,7 @@ workflows:
             branches:
               ignore:
                 - release
-      - aws-ecr/build_and_push_image:
-          <<: *build-and-push-elasticsearch-image-staging
-          name: build-and-push-elasticsearch-image-staging
-          filters:
-            branches:
-              ignore:
-                - release
       - test:
-          requires:
-            - build-and-push-elasticsearch-image-staging
           filters:
             branches:
               ignore:
