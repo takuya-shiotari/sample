@@ -1,38 +1,276 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/configuration-reference
 version: 2.1
-
-# Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
-# See: https://circleci.com/docs/orb-intro/
 orbs:
-  # See the Ruby orb documentation here: https://circleci.com/developer/orbs/orb/circleci/ruby
-  ruby: circleci/ruby@2.1.1
-
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/jobs-steps/#jobs-overview & https://circleci.com/docs/configuration-reference/#jobs
-jobs:
-  build:
-    # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/executor-intro/ & https://circleci.com/docs/configuration-reference/#executor-job
+  aws-cli: circleci/aws-cli@4.1.3
+  aws-ecr: circleci/aws-ecr@9.0.3
+  browser-tools: circleci/browser-tools@1.2.3
+references:
+  elasticsearch: &elasticsearch
+    image: 000000000000.dkr.ecr.ap-northeast-1.amazonaws.com/sample/elasticsearch:latest
+    aws_auth:
+      aws_access_key_id: ${AWS_ACCESS_KEY_ID}
+      aws_secret_access_key: ${AWS_SECRET_ACCESS_KEY}
+  sample_image: &sample_image
     docker:
-      # Specify the version you desire here
-      # See: https://circleci.com/developer/images/image/cimg/ruby
-      - image: cimg/ruby:3.3
+      - image: cimg/ruby:3.1.2-browsers
+        entrypoint: /bin/sh
+        user: root
+        environment:
+          DB_PASSWORD: "password"
+      - image: mcr.microsoft.com/mssql/server:2017-latest
+        environment:
+          ACCEPT_EULA: "Y"
+          SA_PASSWORD: "password"
+      - image: circleci/dynamodb
+      - name: elasticsearch-node1
+        environment:
+          - cluster.name=elasticsearch-cluster
+          - node.name=elasticsearch-node1
+          - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
+        <<: *elasticsearch
+      - name: elasticsearch-node2
+        environment:
+          - cluster.name=elasticsearch-cluster
+          - node.name=elasticsearch-node2
+          - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
+        <<: *elasticsearch
+      - name: elasticsearch-node3
+        environment:
+          - cluster.name=elasticsearch-cluster
+          - node.name=elasticsearch-node3
+          - discovery.seed_hosts=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - cluster.initial_master_nodes=elasticsearch-node1,elasticsearch-node2,elasticsearch-node3
+          - 'ES_JAVA_OPTS=-Xms256m -Xmx256m'
+        <<: *elasticsearch
+  restore_bundler_cache: &restore_bundler_cache
+    restore_cache:
+      name: Restore bundler cache
+      key: gems-{{ checksum "Gemfile.lock" }}-{{ .Environment.COMMON_CACHE_KEY }}
+  restore_freetds_cache: &restore_freetds_cache
+    restore_cache:
+      name: Restore FreeTDS Cache
+      keys:
+        - 'freetds-1.3.17'
+  install_freetds: &install_freetds
+    run:
+      name: make install freetds for bundle install
+      command: |
+        if [ ! -d "freetds-1.3.17" ]; then
+          apt-get update --allow-releaseinfo-change
+          apt-get -y install libsasl2-dev
+          wget http://www.freetds.org/files/stable/freetds-1.3.17.tar.gz
+          tar -xzf freetds-1.3.17.tar.gz
+          cd freetds-1.3.17
+          ./configure --with-tdsver=7.4
+          make
+          cd ..
+        fi
+        cd freetds-1.3.17
+        make install
+  save_freetds_cache: &save_freetds_cache
+    save_cache:
+      name: Save FreeTDS Cache
+      paths:
+        - ./freetds-1.3.17
+      key: 'freetds-1.3.17'
+  install_mecab: &install_mecab
+    run:
+      name: apt-get mecab
+      command: |
+        apt-get update --allow-releaseinfo-change
+        apt-get install -y mecab libmecab-dev mecab-ipadic mecab-ipadic-utf8
+  bundle_install: &bundle_install
+    run:
+      name: Bundle Install
+      command: |
+        gem install bundler:2.4.8
+        bundle install --path=vendor/bundle --jobs=2 --retry=3
+  save_bundler_cache: &save_bundler_cache
+    save_cache:
+      name: Save bundler cache
+      key: gems-{{ checksum "Gemfile.lock" }}-{{ .Environment.COMMON_CACHE_KEY }}
+      paths:
+        - vendor/bundle
+  update_mecabrc: &update_mecabrc
+    run:
+      name: rake mecab:update_mecabrc
+      command: RAILS_ENV=test bundle exec rake mecab:update_mecabrc
+  restore_npm_cache: &restore_npm_cache
+    restore_cache:
+      name: Restore npm cache
+      key: npm-cache-{{ checksum "package-lock.json" }}-{{ .Environment.COMMON_CACHE_KEY }}
+  npm_install: &npm_install
+    run:
+      name: npm install
+      command: npm install
+  save_npm_cache: &save_npm_cache
+    save_cache:
+      name: Save npm cache
+      key: npm-cache-{{ checksum "package-lock.json" }}-{{ .Environment.COMMON_CACHE_KEY }}
+      paths:
+        - node_modules
 
-    # Add steps to the job
-    # See: https://circleci.com/docs/jobs-steps/#steps-overview & https://circleci.com/docs/configuration-reference/#steps
+  add_ssh_keys: &add_ssh_keys
+    add_ssh_keys:
+      fingerprints:
+        - "eb:e7:80:46:5a:67:7e:3a:69:d9:af:36:62:04:d9:7e"
+
+  # add_ssh_keysを事前に処理しておく必要がある
+  git_submodule_update: &git_submodule_update
+    run:
+      name: 'git submodule update'
+      command: |
+        git submodule sync
+        git submodule update --init --recursive
+
+  build-and-push-elasticsearch-image-staging: &build-and-push-elasticsearch-image-staging
+    account_id: "000000000000"
+    auth:
+      - aws-cli/setup:
+          aws_access_key_id: AWS_ACCESS_KEY_ID
+          aws_secret_access_key: AWS_SECRET_ACCESS_KEY
+    path: dockerfiles/elasticsearch
+    build_path: dockerfiles/elasticsearch
+    region: ap-northeast-1
+    repo: sample/containers/elasticsearch
+
+jobs:
+  validate-swagger-files:
+    docker:
+      - image: usabillabv/openapi3-validator
     steps:
-      # Checkout the code as the first step.
       - checkout
       - run:
-          name: Which bundler?
-          command: bundle -v
-      - ruby/install-deps
+          name: validate swagger.yml
+          command: |
+            python /opt/openapi-validator/validator.py swagger/swagger.yml
+      - run:
+          name: validate connect_swagger.yml
+          command: |
+            python /opt/openapi-validator/validator.py swagger/connect_swagger.yml
+      - run:
+          name: validate lab_swagger.yml
+          command: |
+            python /opt/openapi-validator/validator.py swagger/lab_swagger.yml
+      - run:
+          name: validate queuing_swagger.yml
+          command: |
+            python /opt/openapi-validator/validator.py swagger/queuing_swagger.yml
+  test:
+    <<: *sample_image
+    parallelism: 6
+    resource_class: medium+
+    working_directory: ~/sample
+    environment:
+      TZ: Asia/Tokyo
+      PARALLEL_TESTS_CONCURRENCY: 3
+    steps:
+      - checkout
+      - *add_ssh_keys
+      - *git_submodule_update
+      - *restore_bundler_cache
+      - *restore_freetds_cache
+      - *install_freetds
+      - *save_freetds_cache
+      - *install_mecab
+      - *bundle_install
+      - *save_bundler_cache
+      - *update_mecabrc
+      - *restore_npm_cache
+      - *npm_install
+      - *save_npm_cache
+      - browser-tools/install-chrome:
+        chrome-version: 114.0.5735.198
+      - run:
+          name: swagger.ymlが swagger/schemata内のfileを rails dev:swagger:mergeで結合したもので更新されているか確認
+          command: |
+            ./node_modules/swagger-merger/bin/swagger-merger.js -i ./swagger/schemata/manifest.yml -o /tmp/swagger.yml
+            diff ./swagger/swagger.yml /tmp/swagger.yml
+      - run:
+          name: webpack
+          command: |
+            NODE_OPTIONS="--max-old-space-size=512" ./node_modules/.bin/webpack
+      - run:
+          name: Set up DB
+          command: |
+            bundle exec rails "parallel:setup[${PARALLEL_TESTS_CONCURRENCY}]"
+      - run:
+          name: Rubocop
+          command: bundle exec rubocop
+      - run: |
+          mkdir test_results
+          TEST_FILES=$(circleci tests glob "spec/**/*_spec.rb")
+          echo "$TEST_FILES" | circleci tests run --command="xargs bundle exec parallel_rspec -n ${PARALLEL_TESTS_CONCURRENCY}" --verbose --split-by=timings
+      - run: bundle exec rspec --only-failures
+      - store_test_results:
+          path: test_results
+      - store_artifacts:
+          path: brakeman
+      - store_artifacts:
+          path: coverage
+      - store_artifacts:
+          path: tmp/screenshots
+  # TODO: eslintをGitHub Actionsに移行できそう
+  # https://github.com/reviewdog/action-eslint
+  reviewdog:
+    <<: *sample_image
+    resource_class: medium+
+    working_directory: ~/sample
+    environment:
+      TZ: Asia/Tokyo
+    steps:
+      - checkout
+      - *restore_bundler_cache
+      - *restore_freetds_cache
+      - *install_freetds
+      - *save_freetds_cache
+      - *bundle_install
+      - *save_bundler_cache
+      - *restore_npm_cache
+      - *npm_install
+      - *save_npm_cache
+      - run:
+          name: Install reviewdog
+          command: curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s -- -b ./bin
+          when: always
+      - run:
+          name: ESLintによるコーディングスタイルのチェックとreviewdogによる報告
+          command: git diff --name-only --diff-filter=ACMR origin/master -- "app/**/*.js" | xargs -r npx eslint | ./bin/reviewdog -f=eslint -reporter=github-pr-review -diff="git diff origin/master app/**/*.js"
+          when: always
+      - run:
+          name: StyleLintによるコーディングスタイルのチェックとreviewdogによる報告
+          command: git diff --name-only --diff-filter=ACMR origin/master -- "app/**/*.scss" | xargs -r npx stylelint | ./bin/reviewdog -f=stylelint -reporter=github-pr-review -diff="git diff origin/master app/**/*.scss"
+          when: always
 
-# Orchestrate jobs using workflows
-# See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  sample: # This is the name of the workflow, feel free to change it to better match your workflow.
-    # Inside the workflow, you define the jobs you want to run.
+  version: 2
+  deploy:
     jobs:
-      - build
+      - validate-swagger-files:
+          filters:
+            branches:
+              ignore:
+                - release
+      - aws-ecr/build_and_push_image:
+          <<: *build-and-push-elasticsearch-image-staging
+          name: build-and-push-elasticsearch-image-staging
+          filters:
+            branches:
+              ignore:
+                - release
+      - test:
+          requires:
+            - build-and-push-elasticsearch-image-staging
+          filters:
+            branches:
+              ignore:
+                - release
+      - reviewdog:
+          filters:
+            branches:
+              ignore:
+                - release
+
