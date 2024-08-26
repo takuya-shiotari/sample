@@ -10,11 +10,11 @@ references:
         entrypoint: /bin/sh
         user: root
         environment:
-          DB_PASSWORD: "password"
+          DB_PASSWORD: "yourStrong(!)Password"
       - image: mcr.microsoft.com/mssql/server:2017-latest
         environment:
           ACCEPT_EULA: "Y"
-          SA_PASSWORD: "password"
+          SA_PASSWORD: "yourStrong(!)Password"
       - image: circleci/dynamodb
   restore_bundler_cache: &restore_bundler_cache
     restore_cache:
