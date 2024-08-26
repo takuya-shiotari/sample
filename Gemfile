@@ -48,8 +48,6 @@ gem 'aws-sdk-s3', '1.140.0'
 
 gem 'dynamoid', '3.7.1'
 
-gem 'natto'
-
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
 group :development, :test do

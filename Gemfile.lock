@@ -242,8 +242,6 @@ GEM
     msgpack (1.7.2)
     multi_json (1.15.0)
     multipart-post (2.4.1)
-    natto (1.2.0)
-      ffi (>= 1.9.0)
     net-imap (0.4.10)
       date
       net-protocol
@@ -490,7 +488,6 @@ DEPENDENCIES
   jbuilder (~> 2.7)
   listen (>= 3.0.5, < 3.9)
   lograge
-  natto
   parallel
   parallel_tests
   pre-commit
