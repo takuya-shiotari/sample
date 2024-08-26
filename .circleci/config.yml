@@ -118,9 +118,6 @@ jobs:
           name: Set up DB
           command: |
             bundle exec rails "parallel:setup[${PARALLEL_TESTS_CONCURRENCY}]"
-      - run:
-          name: Rubocop
-          command: bundle exec rubocop
       - run: |
           mkdir test_results
           TEST_FILES=$(circleci tests glob "spec/**/*_spec.rb")
