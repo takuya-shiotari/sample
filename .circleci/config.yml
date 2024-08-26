@@ -95,7 +95,6 @@ references:
       name: 'git submodule update'
       command: |
         git submodule sync
-        git submodule update --init --recursive
 
 jobs:
   validate-swagger-files:
