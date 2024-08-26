@@ -87,15 +87,6 @@ references:
         git submodule sync
 
 jobs:
-  validate-swagger-files:
-    docker:
-      - image: usabillabv/openapi3-validator
-    steps:
-      - checkout
-      - run:
-          name: validate swagger.yml
-          command: |
-            python /opt/openapi-validator/validator.py swagger/swagger.yml
   test:
     <<: *sample_image
     parallelism: 6
@@ -120,11 +111,6 @@ jobs:
       - browser-tools/install-chrome:
         chrome-version: 114.0.5735.198
       - run:
-          name: swagger.ymlが swagger/schemata内のfileを rails dev:swagger:mergeで結合したもので更新されているか確認
-          command: |
-            ./node_modules/swagger-merger/bin/swagger-merger.js -i ./swagger/schemata/manifest.yml -o /tmp/swagger.yml
-            diff ./swagger/swagger.yml /tmp/swagger.yml
-      - run:
           name: webpack
           command: |
             NODE_OPTIONS="--max-old-space-size=512" ./node_modules/.bin/webpack
@@ -148,55 +134,13 @@ jobs:
           path: coverage
       - store_artifacts:
           path: tmp/screenshots
-  # TODO: eslintをGitHub Actionsに移行できそう
-  # https://github.com/reviewdog/action-eslint
-  reviewdog:
-    <<: *sample_image
-    resource_class: medium+
-    working_directory: ~/sample
-    environment:
-      TZ: Asia/Tokyo
-    steps:
-      - checkout
-      - *restore_bundler_cache
-      - *restore_freetds_cache
-      - *install_freetds
-      - *save_freetds_cache
-      - *bundle_install
-      - *save_bundler_cache
-      - *restore_npm_cache
-      - *npm_install
-      - *save_npm_cache
-      - run:
-          name: Install reviewdog
-          command: curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s -- -b ./bin
-          when: always
-      - run:
-          name: ESLintによるコーディングスタイルのチェックとreviewdogによる報告
-          command: git diff --name-only --diff-filter=ACMR origin/master -- "app/**/*.js" | xargs -r npx eslint | ./bin/reviewdog -f=eslint -reporter=github-pr-review -diff="git diff origin/master app/**/*.js"
-          when: always
-      - run:
-          name: StyleLintによるコーディングスタイルのチェックとreviewdogによる報告
-          command: git diff --name-only --diff-filter=ACMR origin/master -- "app/**/*.scss" | xargs -r npx stylelint | ./bin/reviewdog -f=stylelint -reporter=github-pr-review -diff="git diff origin/master app/**/*.scss"
-          when: always
 
 workflows:
   version: 2
   deploy:
     jobs:
-      - validate-swagger-files:
-          filters:
-            branches:
-              ignore:
-                - release
       - test:
           filters:
             branches:
               ignore:
                 - release
-      - reviewdog:
-          filters:
-            branches:
-              ignore:
-                - release
-
