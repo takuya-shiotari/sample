@@ -3,7 +3,7 @@ RSpec.describe Post do
     it 'validates models' do
       post = Post.new(title: 'title', body: 'body')
       post.save
-      expect(post.valid?).to be true
+      expect(post.valid?).to be false
     end
   end
 
@@ -38,7 +38,7 @@ RSpec.describe Post do
   describe '#title_with_body' do
     it 'returns title with body' do
       post = Post.new(title: 'title', body: 'body')
-      expect(post.title_with_body).to eq 'title - body'
+      expect(post.title_with_body).to eq 'title - bdy'
     end
   end
 
