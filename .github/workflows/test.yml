@@ -197,6 +197,28 @@ jobs:
         with:
           name: coverage
           path: coverage
+      - name: Download previous octocov-report
+        uses: dawidd6/action-download-artifact@v5
+        with:
+          name: octocov-report
+          path: ${{ runner.temp }}/octocov-report
+          branch: ${{ github.event.repository.default_branch }}
+          workflow_conclusion: success
+      - name: View coverage details for sources with changed coverage
+        run: |
+          if [ ! -f ${OLD_REPORT_PATH} ]; then
+            exit 0
+          fi
+          octocov dump > ${NEW_REPORT_PATH}
+          set +e
+          diff -y -W 1000 --suppress-common-lines \
+            <(cat ${NEW_REPORT_PATH} | jq -r ".coverage.files[] | [.file, .covered / .total * 100] | @csv" | sort) \
+            <(cat ${OLD_REPORT_PATH} | jq -r ".coverage.files[] | [.file, .covered / .total * 100] | @csv" | sort) | \
+            awk -F "[\t ]*[|<>,][\t ]*" '$1 ~ /[^ \t]/ { print "::group::" $1 ": " int($2) "% -> " int($4) "%"; system("octocov view "$1""); print "::endgroup::" }'
+          set -e
+        env:
+          OLD_REPORT_PATH: ${{ runner.temp }}/octocov-report/report.json
+          NEW_REPORT_PATH: ${{ runner.temp }}/report.json
 
   report-failed-tests:
     needs: test
