@@ -51,7 +51,7 @@ def generate_reviewdog_rows(junit_xml_file_path)
   end
 end
 
-File.open(ENV['OUTPUT_FILE_PATH'], 'w') do |f|
+File.open(ENV['REVIEWDOG_JSON_FILE_PATH'], 'w') do |f|
   Dir.glob(ENV['JUNIT_XML_FILE_PATH_PATTERN']).each do |junit_xml_file_path|
     rows = generate_reviewdog_rows(junit_xml_file_path)
     f.puts(rows.map(&:to_json).join("\n")) if rows.present?
