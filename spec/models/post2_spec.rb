@@ -3,7 +3,7 @@ RSpec.describe 'Post2' do
     it 'validates models' do
       post = Post.new(title: 'title', body: 'body')
       post.save
-      expect(post.valid?).to be true
+      expect(post.valid?).to be [true, false].sample
     end
   end
 
@@ -17,7 +17,7 @@ RSpec.describe 'Post2' do
   describe '#body_length' do
     it 'returns the length of the body' do
       post = Post.new(title: 'title', body: 'body')
-      expect(post.body_length).to be 4
+      expect(post.body_length).to be 3
     end
   end
 

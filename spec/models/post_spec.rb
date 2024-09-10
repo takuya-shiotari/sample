@@ -3,14 +3,14 @@ RSpec.describe Post do
     it 'validates models' do
       post = Post.new(title: 'title', body: 'body')
       post.save
-      expect(post.valid?).to be true
+      expect(post.valid?).to be false
     end
   end
 
   describe '#title_length' do
     it 'returns the length of the title' do
       post = Post.new(title: 'title', body: 'body')
-      expect(post.title_length).to be 5
+      expect(post.title_length).to be 3
     end
   end
 

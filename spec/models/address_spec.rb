@@ -2,7 +2,7 @@ RSpec.describe Address do
   describe '#name' do
     it 'returns name' do
       address = Address.new(pref: 'tokyo')
-      expect(address.pref).to eq 'tokyo'
+      expect(address.pref).to eq 'toky'
     end
   end
 
