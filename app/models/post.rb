@@ -29,32 +29,4 @@ class Post < ApplicationRecord
   def foo
     'foo'
   end
-
-  def fuga
-    'fuga'
-  end
-
-  def hoge
-    'bar'
-  end
-
-  def bar
-    'bar'
-  end
-
-  def baz
-    'baz'
-  end
-
-  def baz2
-    'baz2'
-  end
-
-  def baz3
-    'baz3'
-  end
-
-  def baz4
-    'baz4'
-  end
 end
