@@ -93,7 +93,6 @@ jobs:
             mkdir -p coverage
             mv ${{ runner.temp }}/test-result-${{ matrix.test_job_index }}/coverage/.resultset*.json coverage/
           fi
-          cat coverage/.*
           bundle exec ruby scripts/rename_and_clean_test_results.rb
       - name: Setup DB
         run: bundle exec rails "parallel:setup[`nproc`]"
