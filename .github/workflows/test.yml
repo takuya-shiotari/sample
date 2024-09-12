@@ -14,8 +14,7 @@ env:
   DB_PASSWORD: yourStrong(!)Password
   SWAGGER_UI_VERSION: v4.15.5
   TZ: Asia/Tokyo
-  CI_NODE_TOTAL: 2
-  CI_NODE_CPU_CORES: 2
+  TEST_JOB_PARALLEL_COUNT: 2
   RAILS_ENV: test
 
 defaults:
@@ -32,13 +31,16 @@ jobs:
       - name: Set matrix
         id: set-matrix
         run: |
-           seq -s ',' 0 $(($CI_NODE_TOTAL - 1)) | \
+           seq -s ',' 0 $(($TEST_JOB_PARALLEL_COUNT - 1)) | \
              jq -R 'split(",") | map(select(length > 0)) | map(tonumber)' | \
-             jq -r '"matrix={\"ci_node_index\":\(.)}"' >> $GITHUB_OUTPUT
+             jq -r '"matrix={\"test_job_index\":\(.)}"' >> $GITHUB_OUTPUT
 
   test:
     runs-on: ubuntu-20.04
     timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
     needs:
       - setup-matrix
     services:
@@ -93,12 +95,12 @@ jobs:
           fi
           bundle exec ruby scripts/rename_and_clean_test_results.rb
       - name: Setup DB
-        run: bundle exec rails "parallel:setup[${CI_NODE_CPU_CORES}]"
+        run: bundle exec rails "parallel:setup[`nproc`]"
       - name: Download all test results for default branch
         if: ${{ !steps.previous-test-result.outputs.failed-tests-only }}
         uses: dawidd6/action-download-artifact@v5
         with:
-          name: test-result-[0-9]+
+          name: test-result-*
           name_is_regexp: true
           path: ${{ runner.temp }}/default-branch-test-results
           branch: ${{ github.event.repository.default_branch }}
@@ -111,11 +113,11 @@ jobs:
         with:
           reports: ${{ runner.temp }}/default-branch-test-results/**/test_results
           glob: spec/**/*_spec.rb
-          index: ${{ matrix.ci_node_index }}
-          total: ${{ env.CI_NODE_TOTAL }}
+          index: ${{ matrix.test_job_index }}
+          total: ${{ env.TEST_JOB_PARALLEL_COUNT }}
       - name: Run rspec in parallel
         if: ${{ !steps.previous-test-result.outputs.failed-tests-only }}
-        run: bundle exec parallel_rspec -n $CI_NODE_CPU_CORES ${{ steps.split-tests.outputs.paths }}
+        run: bundle exec parallel_rspec -n `nproc` ${{ steps.split-tests.outputs.paths }}
       - name: Re-run rspec only failures
         if: ${{ steps.previous-test-result.outputs.failed-tests-only }}
         run: bundle exec rspec --only-failures --failure-exit-code=0
@@ -139,10 +141,10 @@ jobs:
         if: ${{ success() || failure() }}
         uses: actions/upload-artifact@v4
         with:
-          name: test-result-${{ matrix.ci_node_index }}
+          name: test-result-${{ matrix.test_job_index }}
           path: |
-            spec/examples.txt
             test_results/
+            spec/examples.txt
             coverage/.resultset*.json
           include-hidden-files: true
           if-no-files-found: ignore
@@ -154,7 +156,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    if: success() || failure()
+    if: ${{ success() || failure() }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -174,7 +176,7 @@ jobs:
         with:
           name: coverage
           path: coverage
-      - name: Download previous octocov-report
+      - name: Download octocov-report for default branch
         uses: dawidd6/action-download-artifact@v5
         with:
           name: octocov-report
@@ -189,9 +191,9 @@ jobs:
           octocov dump > ${NEW_REPORT_PATH}
           set +e
           diff -y -W 1000 --suppress-common-lines \
-            <(cat ${NEW_REPORT_PATH} | jq -r ".coverage.files[] | [.file, .covered / .total * 100] | @csv" | sort) \
-            <(cat ${OLD_REPORT_PATH} | jq -r ".coverage.files[] | [.file, .covered / .total * 100] | @csv" | sort) | \
-            awk -F "[\t ]*[|<>,][\t ]*" '$1 ~ /[^ \t]/ { print "::group::" $1 ": " int($4) "% -> " int($2) "%"; system("octocov view "$1""); print "::endgroup::" }'
+            <(cat ${OLD_REPORT_PATH} | jq -r ".coverage.files[] | [.file, .covered / .total * 100] | @csv" | sort) \
+            <(cat ${NEW_REPORT_PATH} | jq -r ".coverage.files[] | [.file, .covered / .total * 100] | @csv" | sort) | \
+            awk -F "[\t ]*[|<>,][\t ]*" '$1 ~ /[^ \t]/ { print "::group::" $1 ": " int($2) "% -> " int($4) "%"; system("octocov view "$1""); print "::endgroup::" }'
           set -e
         env:
           OLD_REPORT_PATH: ${{ runner.temp }}/octocov-report/report.json
@@ -205,7 +207,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    if: success() || failure()
+    if: ${{ success() || failure() }}
     env:
       REVIEWDOG_JSON_FILE_NAME: rspec_reviewdog.jsonl
     steps:
@@ -238,7 +240,7 @@ jobs:
     needs: report-coverage
     runs-on: ubuntu-20.04
     timeout-minutes: 5
-    if: format('refs/heads/{0}', github.event.repository.default_branch) == github.ref
+    if: ${{ format('refs/heads/{0}', github.event.repository.default_branch) == github.ref }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -250,18 +252,18 @@ jobs:
           repository: swagger-api/swagger-ui
           ref: ${{ env.SWAGGER_UI_VERSION }}
           path: swagger-ui
-      - name: Download coverage artifacts
+      - name: Download coverage
         uses: actions/download-artifact@v4
         with:
           name: coverage
           path: coverage
-      - name: Build GitHub Pages
+      - name: Build pages artifact
         run: |
           mkdir -p github_pages_artifact/swagger-ui/
           cp swagger-ui/dist/* github_pages_artifact/swagger-ui/
           cp -f main/docs/dist/swagger-ui/* github_pages_artifact/swagger-ui/
           cp -r coverage github_pages_artifact/
-      - name: Upload page artifact
+      - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: github_pages_artifact/
@@ -277,7 +279,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-20.04
     timeout-minutes: 5
-    if: format('refs/heads/{0}', github.event.repository.default_branch) == github.ref
+    if: ${{ format('refs/heads/{0}', github.event.repository.default_branch) == github.ref }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
