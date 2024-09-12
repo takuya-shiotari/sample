@@ -1,6 +1,6 @@
 require 'nokogiri'
 
-suffix = ARGV[0] || '_old'
+suffix = ARGV[0] || "_#{Time.now.to_i}"
 
 # @param pattern [String]
 # @param suffix [String]
