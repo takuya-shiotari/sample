@@ -8,7 +8,7 @@ require 'rails_helper'
 # @param example_group [RSpec::Core::ExampleGroup]
 # @return [Array<RSpec::Core::Example>]
 def collect_all_examples(example_group)
-  example_group.examples + example_group.children.flat_map(&method(:collect_all_examples))
+  example_group.examples + example_group.children.flat_map { collect_all_examples(_1) }
 end
 
 # ExampleGroupからfull_descriptionとline_numberの対応関係を生成する
@@ -24,12 +24,12 @@ end
 # @return [Proc]
 def cached_description_to_line_number
   cache = {}
-  lambda do |path|
+  ->(path) {
     cache[path] ||= begin
       example_group = eval(File.read(path)) # rubocop:disable Security/Eval
       map_description_to_line_number(example_group)
     end
-  end
+  }
 end
 
 # JUnit XMLファイルからReviewdog形式のデータを生成する
@@ -55,8 +55,8 @@ def parse_junit_failures(junit_xml_file_path)
   end
 end
 
-File.open(ENV['REVIEWDOG_JSON_FILE_PATH'], 'w') do |f|
-  Dir[ENV['JUNIT_XML_FILE_PATH_PATTERN']].each do |junit_xml_file_path|
+File.open(ENV.fetch('REVIEWDOG_JSON_FILE_PATH'), 'w') do |f|
+  Dir[ENV.fetch('JUNIT_XML_FILE_PATH_PATTERN')].each do |junit_xml_file_path|
     rows = parse_junit_failures(junit_xml_file_path)
     f.puts(rows.map(&:to_json).join("\n")) if rows.present?
   end
