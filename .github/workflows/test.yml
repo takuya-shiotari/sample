@@ -72,26 +72,26 @@ jobs:
       - name: Download previous test result
         uses: actions/download-artifact@v4
         with:
-          pattern: test-result-${{ matrix.ci_node_index }}
+          pattern: test-result-${{ matrix.test_job_index }}
           path: ${{ runner.temp }}
       - name: Place previous test result
         id: previous-test-result
         run: |
-          if [ ! -e ${{ runner.temp }}/test-result-${{ matrix.ci_node_index }}/test_results ]; then
+          if [ ! -e ${{ runner.temp }}/test-result-${{ matrix.test_job_index }}/test_results ]; then
             exit 0
           fi
           echo "failed-tests-only=true" >> $GITHUB_OUTPUT
-          if [ -f ${{ runner.temp }}/test-result-${{ matrix.ci_node_index }}/spec/examples.txt ]; then
-            mv ${{ runner.temp }}/test-result-${{ matrix.ci_node_index }}/spec/examples.txt spec/examples.txt
+          if [ -f ${{ runner.temp }}/test-result-${{ matrix.test_job_index }}/spec/examples.txt ]; then
+            mv ${{ runner.temp }}/test-result-${{ matrix.test_job_index }}/spec/examples.txt spec/examples.txt
             sudo chown runner:runner spec/examples.txt
           fi
-          if [ -e ${{ runner.temp }}/test-result-${{ matrix.ci_node_index }}/test_results ]; then
+          if [ -e ${{ runner.temp }}/test-result-${{ matrix.test_job_index }}/test_results ]; then
             mkdir -p test_results
-            mv ${{ runner.temp }}/test-result-${{ matrix.ci_node_index }}/test_results/* test_results/
+            mv ${{ runner.temp }}/test-result-${{ matrix.test_job_index }}/test_results/* test_results/
           fi
-          if [ -e ${{ runner.temp }}/test-result-${{ matrix.ci_node_index }}/coverage ]; then
+          if [ -e ${{ runner.temp }}/test-result-${{ matrix.test_job_index }}/coverage ]; then
             mkdir -p coverage
-            mv ${{ runner.temp }}/test-result-${{ matrix.ci_node_index }}/coverage/.resultset*.json coverage/
+            mv ${{ runner.temp }}/test-result-${{ matrix.test_job_index }}/coverage/.resultset*.json coverage/
           fi
           bundle exec ruby scripts/rename_and_clean_test_results.rb
       - name: Setup DB
