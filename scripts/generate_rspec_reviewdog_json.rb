@@ -32,7 +32,7 @@ def cached_description_to_line_number
   }
 end
 
-# JUnit XMLファイルからReviewdog形式のデータを生成する
+# JUnit XMLファイルからRDFormatのデータを生成する
 # @param junit_xml_file_path [String]
 # @return [Array<Hash>]
 def parse_junit_failures(junit_xml_file_path)
