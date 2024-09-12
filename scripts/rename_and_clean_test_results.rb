@@ -8,6 +8,7 @@ def rename_files_with_suffix(pattern, suffix:)
   Dir[pattern].each do |path|
     ext = File.extname(path)
     new_path = path.gsub(/#{Regexp.escape(ext)}\Z/, "#{suffix}#{ext}")
+    p "#{path} #{new_path}"
     File.rename(path, new_path)
   end
 end
