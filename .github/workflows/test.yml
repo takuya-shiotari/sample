@@ -176,6 +176,7 @@ jobs:
         with:
           name: coverage
           path: coverage
+          include-hidden-files: true
       - name: Download octocov-report for default branch
         uses: dawidd6/action-download-artifact@v5
         with:
