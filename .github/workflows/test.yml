@@ -85,13 +85,14 @@ jobs:
           fi
           mkdir -p test_results coverage
           if [ -e ${TEST_RESULT_DIR}/test_results ]; then
-            mkdir -p test_results
             mv ${TEST_RESULT_DIR}/test_results/* test_results/
           fi
           if [ -e ${TEST_RESULT_DIR}/coverage ]; then
             mv ${TEST_RESULT_DIR}/coverage/.resultset*.json coverage/
           fi
-          bundle exec ruby scripts/rename_and_clean_test_results.rb
+          if [ -e ${TEST_RESULT_DIR}/test_results ] || [ -e ${TEST_RESULT_DIR}/coverage ]; then
+            bundle exec ruby scripts/rename_and_clean_test_results.rb
+          fi
       - name: Setup DB
         run: bundle exec rails "parallel:setup[`nproc`]"
       - name: Download all test results for default branch
