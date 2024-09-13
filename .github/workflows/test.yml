@@ -184,7 +184,10 @@ jobs:
           branch: ${{ github.event.repository.default_branch }}
           workflow_conclusion: success
           if_no_artifact_found: warn
-      - name: View coverage details for sources with changed coverage
+      - name: View coverage details for sources with coverage changes
+        env:
+          OLD_REPORT_PATH: ${{ runner.temp }}/octocov-report/report.json
+          NEW_REPORT_PATH: ${{ runner.temp }}/report.json
         run: |
           if [ ! -f ${OLD_REPORT_PATH} ]; then
             exit 0
@@ -196,9 +199,6 @@ jobs:
             <(cat ${NEW_REPORT_PATH} | jq -r ".coverage.files[] | [.file, .covered / .total * 100] | @csv" | sort) | \
             awk -F "[\t ]*[|<>,][\t ]*" '$1 ~ /[^ \t]/ { print "::group::" $1 ": " int($2) "% -> " int($4) "%"; system("octocov view "$1""); print "::endgroup::" }'
           set -e
-        env:
-          OLD_REPORT_PATH: ${{ runner.temp }}/octocov-report/report.json
-          NEW_REPORT_PATH: ${{ runner.temp }}/report.json
 
   report-failed-tests:
     needs: test
