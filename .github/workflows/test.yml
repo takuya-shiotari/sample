@@ -183,6 +183,7 @@ jobs:
           path: ${{ runner.temp }}/octocov-report
           branch: ${{ github.event.repository.default_branch }}
           workflow_conclusion: success
+          if_no_artifact_found: warn
       - name: View coverage details for sources with changed coverage
         run: |
           if [ ! -f ${OLD_REPORT_PATH} ]; then
