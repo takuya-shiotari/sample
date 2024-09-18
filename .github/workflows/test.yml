@@ -178,7 +178,7 @@ jobs:
           path: coverage
           include-hidden-files: true
       - name: Download octocov-report for default branch
-        uses: dawidd6/action-download-artifact@v5
+        uses: dawidd6/action-download-artifact@v6
         with:
           name: octocov-report
           path: ${{ runner.temp }}/octocov-report
