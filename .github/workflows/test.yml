@@ -239,35 +239,19 @@ jobs:
 
   build-github-pages:
     needs: report-coverage
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     if: ${{ format('refs/heads/{0}', github.event.repository.default_branch) == github.ref }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          path: main
-      - name: Checkout swagger-ui
-        uses: actions/checkout@v4
-        with:
-          repository: swagger-api/swagger-ui
-          ref: ${{ env.SWAGGER_UI_VERSION }}
-          path: swagger-ui
       - name: Download coverage
         uses: actions/download-artifact@v4
         with:
           name: coverage
           path: coverage
-      - name: Build pages artifact
-        run: |
-          mkdir -p github_pages_artifact/swagger-ui/
-          cp swagger-ui/dist/* github_pages_artifact/swagger-ui/
-          cp -f main/docs/dist/swagger-ui/* github_pages_artifact/swagger-ui/
-          cp -r coverage github_pages_artifact/
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: github_pages_artifact/
+          path: coverage
 
   deploy-github-pages:
     needs: build-github-pages
@@ -278,7 +262,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     if: ${{ format('refs/heads/{0}', github.event.repository.default_branch) == github.ref }}
     steps:
