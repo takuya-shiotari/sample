@@ -25,6 +25,7 @@ RSpec.configure do |config|
   config.before(:each, type: :system) do
     driven_by :cuprite
     Capybara.always_include_port = true
+    page.driver.add_headers('Accept-Language' => 'ja', 'Connection' => 'keep-alive', 'User-Agent' => 'Mozilla/5.0')
   end
 
   config.example_status_persistence_file_path = 'spec/examples.txt'

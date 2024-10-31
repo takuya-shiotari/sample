@@ -2,7 +2,8 @@ RSpec.describe 'Posts' do
   describe 'test' do
     let(:alias_item_category) { create(:alias_item_category) }
 
-    scenario 'post' do
+    300.times.each do |i|
+    scenario "post #{i}" do
       visit posts_path
       click_link 'New Post'
 
@@ -17,5 +18,6 @@ RSpec.describe 'Posts' do
       visit posts_path
       expect(page).to have_content 'Test Title'
     end
+  end
   end
 end
