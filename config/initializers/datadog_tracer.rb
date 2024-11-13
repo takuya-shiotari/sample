@@ -1,5 +1,5 @@
 require 'datadog/statsd'
-require 'ddtrace'
+require 'datadog'
 
 Datadog::Tracing.before_flush do |trace|
   trace.spans.each do |span|
@@ -19,8 +19,8 @@ ENV['DD_TRACE_RATE_LIMIT'] = '1000'
 Datadog.configure do |c|
   # c.diagnostics.debug = true
 
-  c.tracing.enabled = true
-  c.runtime_metrics.enabled = true
+  c.tracing.enabled = !Rails.env.test?
+  c.runtime_metrics.enabled = !Rails.env.test?
   c.runtime_metrics.statsd = Datadog::Statsd.new(ENV.fetch('DD_AGENT_HOST', 'localhost'), 8125)
   c.env = Rails.env
   c.tracing.instrument :rails, service_name: "sample-#{Rails.env}"
@@ -31,7 +31,7 @@ Datadog.configure do |c|
   c.tracing.instrument :elasticsearch
   c.tracing.instrument :faraday
   c.tracing.instrument :aws
-  c.profiling.enabled = true
+  c.profiling.enabled = !Rails.env.test?
   c.service = "sample-#{Rails.env}"
   #   c.tracing.sampler = Datadog::Tracing::Sampling::PrioritySampler.new(
   #     post_sampler: Datadog::Tracing::Sampling::RuleSampler.new(
