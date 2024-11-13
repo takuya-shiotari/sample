@@ -7,10 +7,10 @@ class PostsController < ApplicationController
     # span_id = Datadog.current_span_id
     # context = Datadog::Tracing.send(:tracer).provider.context
     # https://github.com/DataDog/dd-trace-rb/blob/master/docs/UpgradeGuide.md
-    trace_digest = Datadog::Tracing.active_trace.to_digest
+    #trace_digest = Datadog::Tracing.active_trace.to_digest
     Parallel.map(%w[es api sleep], in_threads: 2) do |type|
       # Datadog::Tracing.continue_trace!(trace_digest)
-      Datadog::Tracing.trace('parallel', continue_from: trace_digest) do |_span, _trace|
+      #Datadog::Tracing.trace('parallel', continue_from: trace_digest) do |_span, _trace|
         case type
         when 'es'
           @posts = Post.all.to_a
@@ -20,7 +20,7 @@ class PostsController < ApplicationController
           sleep 0.1
           Post.first
         end
-      end
+      #end
     end
   end
   # rubocop:enable Metrics/MethodLength
