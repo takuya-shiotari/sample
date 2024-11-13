@@ -1,3 +1,4 @@
+if ENV['DD_ENV'] != 'ci'
 require 'datadog/statsd'
 require 'datadog'
 
@@ -40,4 +41,5 @@ Datadog.configure do |c|
   #       ]
   #     )
   #   )
+end
 end
