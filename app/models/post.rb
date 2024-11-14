@@ -57,4 +57,8 @@ class Post < ApplicationRecord
   def baz4
     'baz4'
   end
+
+  def baz5
+    'baz5'
+  end
 end
