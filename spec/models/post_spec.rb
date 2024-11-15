@@ -31,7 +31,7 @@ RSpec.describe Post do
   describe '#baz5' do
     it 'returns baz5' do
       post = Post.new(title: 'a' * 20, body: 'body')
-      expect(post.baz5).to eq 'baz4'
+      expect(post.baz5).to eq 'baz5'
     end
   end
 end
