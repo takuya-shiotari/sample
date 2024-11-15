@@ -30,10 +30,6 @@ class Post < ApplicationRecord
     'foo'
   end
 
-  def fuga
-    'fuga'
-  end
-
   def hoge
     'bar'
   end
