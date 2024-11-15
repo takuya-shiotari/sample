@@ -3,7 +3,7 @@ RSpec.describe 'Post10' do
     it 'validates models' do
       post = Post.new(title: 'title', body: 'body')
       post.save
-      expect(post.valid?).to be true
+      expect(post.valid?).to be [true, false, false, false]
     end
   end
 
