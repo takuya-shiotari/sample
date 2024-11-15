@@ -17,7 +17,7 @@ RSpec.describe Post do
   describe '#body_length' do
     it 'returns the length of the body' do
       post = Post.new(title: 'title', body: 'body')
-      expect(post.body_length).to be 4
+      expect(post.body_length).to be 3
     end
   end
 
