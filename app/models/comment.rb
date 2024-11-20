@@ -14,4 +14,4 @@ class Comment
   def to_s
     @body
   end
--end
+end
