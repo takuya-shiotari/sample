@@ -241,6 +241,10 @@ jobs:
           REVIEWDOG_JSON_FILE_PATH: ${{ runner.temp }}/${{ env.REVIEWDOG_JSON_FILE_NAME }}
         run: |
           cat $REVIEWDOG_JSON_FILE_PATH | reviewdog -f=rdjsonl -reporter=github-check
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        with:
+          report_paths: ${{ runner.temp }}/test-results/**/test_results/*.xml
 
   build-github-pages:
     needs: report-coverage
