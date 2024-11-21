@@ -44,7 +44,7 @@ def parse_junit_failures(junit_xml_file_path)
     {
       message: failure_elem.text,
       code: {
-        name: 'title',
+        value: 'title',
         url: 'https://example.com/'
       },
       location: {
