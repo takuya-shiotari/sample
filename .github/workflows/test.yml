@@ -245,6 +245,7 @@ jobs:
         uses: mikepenz/action-junit-report@v5
         with:
           report_paths: ${{ runner.temp }}/test-results/**/test_results/*.xml
+          flaky_summary: true
 
   build-github-pages:
     needs: report-coverage
