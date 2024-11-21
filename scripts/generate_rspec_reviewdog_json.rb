@@ -43,6 +43,10 @@ def parse_junit_failures(junit_xml_file_path)
     description_to_line = description_mapper.call(path)
     {
       message: failure_elem.text,
+      code: {
+        name: 'title',
+        url: 'https://example.com/'
+      },
       location: {
         path: path,
         range: {
