@@ -242,6 +242,36 @@ jobs:
         run: |
           cat $REVIEWDOG_JSON_FILE_PATH | reviewdog -f=rdjsonl -reporter=github-check
 
+  report-test-summary:
+    needs: test
+    runs-on: ubuntu-20.04
+    timeout-minutes: 5
+    continue-on-error: true
+    permissions:
+      contents: read
+      pull-requests: write
+    if: ${{ success() || failure() }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test-result-*
+          path: ${{ runner.temp }}/test-results
+      - name: Download previous merged JUnit XML
+        uses: actions/download-artifact@v4
+        with:
+          pattern: merged_rspec
+          path: ${{ runner.temp }}/previous-test-results
+      - name: Merge JUnit XMLs
+        run: npx --yes junit-report-merger ${{ runner.temp }}/merged_rspec.xml "${{ runner.temp }}/test-results/**/test_results/*.xml" "${{ runner.temp }}/previous-test-results/*.xml"
+      - name: Upload merged JUnit XML
+        uses: actions/upload-artifact@v4
+        with:
+          name: merged_rspec
+          path: ${{ runner.temp }}/merged_rspec.xml
+
   build-github-pages:
     needs: report-coverage
     runs-on: ubuntu-latest
