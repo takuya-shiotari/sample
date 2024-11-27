@@ -23,6 +23,7 @@ gem 'jbuilder', '~> 2.7'
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 
+gem 'natto'
 gem 'elasticsearch', '7.13.3'
 gem 'elasticsearch-dsl', '0.1.10'
 gem 'elasticsearch-model', '7.2.1'
