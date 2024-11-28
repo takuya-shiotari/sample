@@ -28,6 +28,7 @@ jobs:
           ref: ${{ github.base_ref }}
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-rails-application
+      - uses: reviewdog/action-setup@v1
       - uses: reviewdog/action-rubocop@v2
         with:
           reporter: github-pr-review
@@ -55,7 +56,6 @@ jobs:
           reporter: github-pr-review
           stylelint_input: $(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }} -- 'app/**/*.scss')
           fail_on_error: true
-      - uses: reviewdog/action-setup@v1
       - name: Run slim-lint with reviewdog
         if: ${{ (success() || failure()) }}
         env:
