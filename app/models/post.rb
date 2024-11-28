@@ -57,4 +57,8 @@ class Post < ApplicationRecord
   def baz5
     'baz5'
   end
+
+  def fugafuga
+    'fugafuga'
+  end
 end
