@@ -63,4 +63,4 @@ jobs:
         run: |
           bundle exec slim-lint --reporter json app/views | \
             jq '.files[]' | jq -c '. as $input | .offenses[] | {message: .message, location: {path: $input.path, range: {start: {line: .location.line}}}, severity: .severity}' | \
-            reviewdog -f=rdjsonl -name="slim-lint" -reporter=github-pr-review
+            reviewdog -f=rdjsonl -reporter=github-check
