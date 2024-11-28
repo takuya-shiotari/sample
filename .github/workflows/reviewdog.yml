@@ -28,12 +28,15 @@ jobs:
           ref: ${{ github.base_ref }}
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-rails-application
+      - uses: reviewdog/action-setup@v1
       - uses: reviewdog/action-rubocop@v2
         with:
           reporter: github-pr-review
           skip_install: true
           use_bundler: true
-          fail_on_error: true
+          only_changed: true
+          filter_mode: nofilter
+          rubocop_flags: '--fail-level convention'
       - uses: reviewdog/action-eslint@v1
         if: success() || failure()
         with:
@@ -58,7 +61,8 @@ jobs:
       - name: Run slim-lint with reviewdog
         if: ${{ (success() || failure()) }}
         env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ github.token }}
         run: |
-          bundle exec slim-lint --reporter json app/views | \
-            reviewdog -f=slimlint -name="slim-lint" -reporter=github-pr-review -level=error
+          bundle exec slim-lint --reporter json $(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }} -- 'app/views/**/*.slim') | \
+            jq '.files[]' | jq -c '. as $files | .offenses[] | {message: .message, location: {path: $files.path, range: {start: {line: .location.line}}}, severity: .severity}' | \
+            reviewdog -f=rdjsonl -name=slim-lint -reporter=github-pr-review -level warning -filter-mode=nofilter

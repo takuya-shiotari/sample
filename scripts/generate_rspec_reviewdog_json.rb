@@ -24,7 +24,7 @@ end
 # @return [Proc]
 def cached_description_to_line_number
   cache = {}
-  ->(path) {
+  lambda { |path|
     cache[path] ||= begin
       example_group = eval(File.read(path)) # rubocop:disable Security/Eval
       map_description_to_line_number(example_group)

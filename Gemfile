@@ -31,8 +31,8 @@ gem 'redis'
 gem 'lograge'
 
 # Reduces boot times through caching; required in config/boot.rb
-gem 'slim'
 gem 'bootsnap', '>= 1.4.2', require: false
+gem 'slim'
 
 gem 'psych', '~> 3.1'
 
@@ -53,27 +53,27 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
 group :development, :test do
   gem 'bullet'
-  gem 'pry-rails'
+  gem 'datadog-ci', '~> 1.0'
+  gem 'parallel_tests'
   gem 'pry-byebug'
+  gem 'pry-rails'
+  gem 'rspec-json_expectations'
   gem 'rspec-rails'
   gem 'simplecov', require: false
-  gem 'rspec-json_expectations'
-  gem 'parallel_tests'
-  gem 'datadog-ci', '~> 1.0'
 end
 
 group :development do
-  gem 'web-console', '>= 3.3.0'
+  gem 'heavens_door'
   gem 'listen', '>= 3.0.5', '< 3.9'
   gem 'pre-commit', require: false
   gem 'rubocop', require: false
+  gem 'rubocop-performance', require: false
   gem 'rubocop-rails', require: false
   gem 'rubocop-rspec', require: false
-  gem 'rubocop-performance', require: false
   gem 'slim_lint', require: false
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
-  gem 'heavens_door'
+  gem 'web-console', '>= 3.3.0'
 end
 
 group :test do
