@@ -2,28 +2,26 @@ class PostsController < ApplicationController
   before_action :set_post, only: %i[show edit update destroy]
 
   # GET /posts or /posts.json
-  # rubocop:disable Metrics/MethodLength
   def index
     # span_id = Datadog.current_span_id
     # context = Datadog::Tracing.send(:tracer).provider.context
     # https://github.com/DataDog/dd-trace-rb/blob/master/docs/UpgradeGuide.md
-    #trace_digest = Datadog::Tracing.active_trace.to_digest
+    # trace_digest = Datadog::Tracing.active_trace.to_digest
     Parallel.map(%w[es api sleep], in_threads: 2) do |type|
       # Datadog::Tracing.continue_trace!(trace_digest)
-      #Datadog::Tracing.trace('parallel', continue_from: trace_digest) do |_span, _trace|
-        case type
-        when 'es'
-          @posts = Post.all.to_a
-        when 'api'
-          @products = fetch_products
-        when 'sleep'
-          sleep 0.1
-          Post.first
-        end
-      #end
+      # Datadog::Tracing.trace('parallel', continue_from: trace_digest) do |_span, _trace|
+      case type
+      when 'es'
+        @posts = Post.all.to_a
+      when 'api'
+        @products = fetch_products
+      when 'sleep'
+        sleep 0.1
+        Post.first
+      end
+      # end
     end
   end
-  # rubocop:enable Metrics/MethodLength
 
   # GET /posts/1 or /posts/1.json
   def show; end
