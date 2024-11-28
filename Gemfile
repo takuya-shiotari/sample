@@ -31,6 +31,7 @@ gem 'redis'
 gem 'lograge'
 
 # Reduces boot times through caching; required in config/boot.rb
+gem 'slim'
 gem 'bootsnap', '>= 1.4.2', require: false
 
 gem 'psych', '~> 3.1'

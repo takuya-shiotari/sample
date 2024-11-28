@@ -503,6 +503,7 @@ DEPENDENCIES
   sass-rails (>= 6)
   selenium-webdriver
   simplecov
+  slim
   slim_lint
   spring
   spring-watcher-listen (~> 2.0.0)
