@@ -55,6 +55,7 @@ jobs:
           reporter: github-pr-review
           stylelint_input: $(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }} -- 'app/**/*.scss')
           fail_on_error: true
+      - uses: reviewdog/action-setup@v1
       - name: Run slim-lint with reviewdog
         if: ${{ (success() || failure()) }}
         env:
