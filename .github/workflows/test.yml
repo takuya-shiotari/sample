@@ -23,7 +23,7 @@ defaults:
 
 jobs:
   setup-matrix:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -175,7 +175,7 @@ jobs:
 
   report-coverage:
     needs: test
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       contents: read
@@ -231,7 +231,7 @@ jobs:
 
   report-failed-tests:
     needs: test
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     continue-on-error: true
     permissions:
@@ -270,7 +270,7 @@ jobs:
 
   report-test-summary:
     needs: test
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     continue-on-error: true
     permissions:
