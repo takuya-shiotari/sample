@@ -36,6 +36,7 @@ runs:
           cd ..
         fi
         cd freetds-${FREETDS_VERSION}
+        touch configure Makefile
         sudo make install
     - name: Setup Ruby
       uses: ruby/setup-ruby@v1
