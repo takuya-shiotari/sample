@@ -37,7 +37,7 @@ runs:
         fi
         cd freetds-${FREETDS_VERSION}
         touch configure Makefile
-        sudo make install
+        sudo make install V=1
     - name: Setup Ruby
       uses: ruby/setup-ruby@v1
       with:
@@ -55,11 +55,3 @@ runs:
     - name: Install dpendencies
       shell: bash
       run: npm ci
-    - name: Upload freetds
-      uses: actions/upload-artifact@v4
-      with:
-        name: freetds
-        path: |
-          ${{ runner.temp }}/freetds-${{ inputs.freetds-version }}
-        include-hidden-files: true
-        if-no-files-found: ignore
