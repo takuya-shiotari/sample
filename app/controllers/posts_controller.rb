@@ -12,7 +12,7 @@ class PostsController < ApplicationController
       # Datadog::Tracing.trace('parallel', continue_from: trace_digest) do |_span, _trace|
       case type
       when 'es'
-        @posts = Post.all.to_a
+        @posts = Post.search({ :query => { :match => { :title => 'test' } } }).records.to_a
       when 'api'
         @products = fetch_products
       when 'sleep'

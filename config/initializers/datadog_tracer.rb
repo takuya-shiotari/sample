@@ -28,8 +28,7 @@ if ENV['DD_ENV'] != 'ci'
     c.tracing.instrument :rack, quantize: { query: { show: :all } }
     # c.tracing.instrument :rack, quantize: { query: { show: %w[query], exclude: %w[token] } }
     c.tracing.instrument :redis
-    # c.tracing.instrument :elasticsearch, quantize: { query: { show: :all } }
-    c.tracing.instrument :elasticsearch
+    c.tracing.instrument :elasticsearch, service_name: 'elasticsearch', quantize: { show: :all }
     c.tracing.instrument :faraday
     c.tracing.instrument :aws
     c.profiling.enabled = !Rails.env.test?
