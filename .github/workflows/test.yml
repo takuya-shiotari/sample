@@ -81,6 +81,12 @@ jobs:
       DD_SITE: ${{ secrets.DD_SITE }}
       DD_ENV: ci
     steps:
+      - name: echo version
+        run: |
+          cat /etc/os-release
+          cat /etc/issue
+          uname -r
+          uname -a
       - name: Checkout
         uses: actions/checkout@v4
         with:
