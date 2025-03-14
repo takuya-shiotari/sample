@@ -90,7 +90,7 @@ jobs:
             fi
             sleep 1
           done
-          docker exec -i ${CONTAINER_NAME} bash -c "docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=${DB_PASSWORD}' -p 1433:${MSSQL_SERVER_PORT} --name db_primary -d mcr.microsoft.com/mssql/server:2017-latest"
+          docker exec -i ${CONTAINER_NAME} bash -c "docker run --privileged -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=${DB_PASSWORD}' -p 1433:${MSSQL_SERVER_PORT} --name db_primary -d mcr.microsoft.com/mssql/server:2017-latest"
           for i in {1..10}; do
             docker exec "$CONTAINER_NAME" docker ps -a
             sleep 1
