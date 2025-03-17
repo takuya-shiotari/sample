@@ -11,11 +11,15 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Get Ubuntu Version
+      id: get-ubuntu-version
+      run: echo "value=$(grep VERSION_ID /etc/os-release | cut -d '=' -f2 | tr -d '\"')" >> $GITHUB_OUTPUT
+      shell: bash
     - name: Cache freetds
       uses: actions/cache@v4
       with:
         path: ${{ runner.temp }}/freetds-${{ inputs.freetds-version }}
-        key: ${{ runner.os }}-freetds-${{ inputs.freetds-version }}
+        key: ${{ runner.os }}-${{ steps.get-ubuntu-version.outputs.value }}-freetds-${{ inputs.freetds-version }}
     - name: Install packages
       uses: awalsh128/cache-apt-pkgs-action@latest
       with:
@@ -52,7 +56,7 @@ runs:
       uses: actions/cache@v4
       with:
         path: ~/.npm
-        key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+        key: ${{ runner.os }}-${{ steps.get-ubuntu-version.outputs.value }}-npm-${{ hashFiles('package-lock.json') }}
     - name: Install dpendencies
       shell: bash
       run: npm ci
