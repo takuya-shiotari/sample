@@ -16,7 +16,7 @@ runs:
       run: echo "value=$(grep VERSION_ID /etc/os-release | cut -d '=' -f2 | tr -d '\"')" >> $GITHUB_OUTPUT
       shell: bash
     - name: Cache freetds
-      uses: actions/cache@v4
+      uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
       with:
         path: ${{ runner.temp }}/freetds-${{ inputs.freetds-version }}
         key: ${{ runner.os }}-${{ steps.get-ubuntu-version.outputs.value }}-freetds-${{ inputs.freetds-version }}
@@ -44,16 +44,16 @@ runs:
         # sudo ls -ltah configure config.status Makefile
         sudo make install
     - name: Setup Ruby
-      uses: ruby/setup-ruby@v1
+      uses: ruby/setup-ruby@1a615958ad9d422dd932dc1d5823942ee002799f # v1.227.0
       with:
         bundler-cache: true
     - name: Setup Node
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
       with:
         node-version-file: .node-version
     - name: Cache node_modules
       id: cache-node-modules
-      uses: actions/cache@v4
+      uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
       with:
         path: ~/.npm
         key: ${{ runner.os }}-${{ steps.get-ubuntu-version.outputs.value }}-npm-${{ hashFiles('package-lock.json') }}
