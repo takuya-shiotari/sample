@@ -123,7 +123,7 @@ jobs:
         run: bundle exec rails "parallel:setup[`nproc`]"
       - name: Download all test results for default branch
         if: ${{ !steps.previous-test-result.outputs.failed-tests-only }}
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v6
+        uses: dawidd6/action-download-artifact@4c1e823582f43b179e2cbb49c3eade4e41f992e2 # v10
         with:
           name: test-result-*
           name_is_regexp: true
@@ -207,7 +207,7 @@ jobs:
           path: coverage
           include-hidden-files: true
       - name: Download octocov-report for default branch
-        uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v6
+        uses: dawidd6/action-download-artifact@4c1e823582f43b179e2cbb49c3eade4e41f992e2 # v10
         with:
           name: octocov-report
           path: ${{ runner.temp }}/octocov-report
