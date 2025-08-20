@@ -10,4 +10,8 @@ class Address
   def to_s
     @pref
   end
+
+  def foo
+    'foo'
+  end
 end
