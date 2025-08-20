@@ -14,4 +14,8 @@ class Address
   def foo
     'foo'
   end
+
+  def baz
+    'baz'
+  end
 end
